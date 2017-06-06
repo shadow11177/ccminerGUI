@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
 using System.Collections.Specialized;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace ccmierGUI
 {
@@ -90,7 +91,6 @@ namespace ccmierGUI
 
         int minute = 0;
         int mhits = 0;
-        int mhashrate = 0;
         int merror = 0;
         int mstall = 0;
 
@@ -100,6 +100,7 @@ namespace ccmierGUI
         int allstall = 0;
 
         List<int> acc5m = new List<int>();
+        Dictionary<int, string[]> GPUs = new Dictionary<int, string[]>();
 
         DateTime lastupdate;
 
@@ -155,8 +156,16 @@ namespace ccmierGUI
         {
             if (e.Data != null)
             {
-                if (e.Data.Contains("GPU #0:") && !e.Data.Contains("does not validate on CPU!"))
+                if (e.Data.Contains("GPU #") && !e.Data.Contains("does not validate on CPU!")) //[2017-06-06 17:37:36] GPU #0: GeForce GTX 970, 246[0m
                 {
+                    string num = e.Data.Substring(e.Data.IndexOf('#') + 1);
+                    string gpuname = num.Substring(num.IndexOf(':') + 2);
+                    gpuname = gpuname.Remove(gpuname.IndexOf(','));
+                    num = num.Remove(num.IndexOf(':'));
+                    //int numgpu = e.Data
+
+                    
+
                     int pos = e.Data.LastIndexOf('\u001b');
                     string hashrate = e.Data.Substring(47, pos - 47);
                     long rate = Convert.ToInt64(hashrate);
@@ -167,19 +176,26 @@ namespace ccmierGUI
                     }
                     else
                     {
-                        if(mhashrate == 0)
+                        int numgpu = Convert.ToInt32(num);
+                        if (!GPUs.ContainsKey(numgpu))
                         {
-                            mhashrate =  (int)rate;
+                            string[] newGPU = { hashrate, gpuname , ""};
+                            GPUs.Add(numgpu, newGPU);
                         }
                         else
                         {
-                            mhashrate = (mhashrate + (int)rate) / 2;
+                            GPUs[numgpu][0] = ((Convert.ToInt32(GPUs[numgpu][0]) + (int)rate) / 2).ToString();
                         }
                     }
                     lblBHash.Invoke(
                         new Action(() =>
                         {
-                            lblBHash.Text = "B. Hashrate:" + hashrate;
+                            int allhash = 0;
+                            foreach(int gpuid in GPUs.Keys)
+                            {
+                                allhash = allhash + Convert.ToInt32(GPUs[gpuid][0]);
+                            }
+                            lblBHash.Text = "B. Hashrate:" + allhash.ToString();
                         }));
                 }
                 else if (e.Data.Contains("Stratum difficulty"))
@@ -228,10 +244,10 @@ namespace ccmierGUI
                     else
                     {
                         allstall++;
-                        lblStall.Invoke(
+                        lblStale.Invoke(
                         new Action(() =>
                         {
-                            lblStall.Text = "Stall:" + allstall.ToString();
+                            lblStale.Text = "Stale:" + allstall.ToString();
                         }));
                         mstall++;
                     }
@@ -344,7 +360,22 @@ namespace ccmierGUI
                 DateTime tme = DateTime.Now;
                 tme = tme.AddSeconds(tme.Second * -1);
                 DateTime scroll = tme.AddHours(-1);
-                chaHash.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), mhashrate));
+
+                foreach(int GPUID in GPUs.Keys)
+                {
+                    if(GPUs[GPUID][2] == "")
+                    {
+                        Series newgpu = new Series("(" +GPUID.ToString() + ") " + GPUs[GPUID][1]);
+                        newgpu.BorderWidth = 3;
+                        newgpu.ChartType = SeriesChartType.Spline;
+                        GPUs[GPUID][2] = chaHash.Series.Count.ToString();
+                        chaHash.Series.Add(newgpu);
+                    }
+                    int gpuchart = Convert.ToInt32(GPUs[GPUID][2]);
+                    chaHash.Series[gpuchart].Points.Add(new DataPoint(tme.ToOADate(), GPUs[GPUID][0]));
+
+                }
+
                 chaHash.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
                 acc5m.Add(mhits);
                 while(acc5m.Count >= 6)
@@ -402,53 +433,78 @@ namespace ccmierGUI
             }
         }
 
+        bool APIError = false;
+
         private void _API_coinotronCall(object sender, DownloadStringCompletedEventArgs e)
         {
-            string JSon = e.Result;
-            JSon = JSon.Replace("\"", "");
-            JSon = JSon.Substring(JSon.IndexOf(_conf_coinotronWRK));
-            JSon = JSon.Remove(JSon.IndexOf("}"));
-            string[] parts = JSon.Split(',');
-            string hashrate = "";
-            foreach (string part in parts)
+            try
             {
-                if (part.Contains("hash"))
+                if (!APIError)
                 {
-                    hashrate = part.Split(':')[1];
+                    string JSon = e.Result;
+                    JSon = JSon.Replace("\"", "");
+                    JSon = JSon.Substring(JSon.IndexOf(_conf_coinotronWRK));
+                    JSon = JSon.Remove(JSon.IndexOf("}"));
+                    string[] parts = JSon.Split(',');
+                    string hashrate = "";
+                    foreach (string part in parts)
+                    {
+                        if (part.Contains("hash"))
+                        {
+                            hashrate = part.Split(':')[1];
+                        }
+                    }
+
+                    if (hashrate != "")
+                    {
+                        lblNHash.Text = "N. Hashrate:" + hashrate;
+                        chaHash.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), hashrate));
+                    }
                 }
             }
-
-            if (hashrate != "")
+            catch
             {
-                lblNHash.Text = "N. Hashrate:" + hashrate;
-                chaHash.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), hashrate));
+                APIError = true;
+                MessageBox.Show("Coinotron API Request failed! Please check your configuration." + Environment.NewLine + "If the error stays please report to the Developer.");
             }
         }
 
         private void _API_p2poolCall(object sender, DownloadStringCompletedEventArgs e)
         {
-            string JSon = e.Result;
-            JSon = JSon.Replace("\"", "");
-            if(JSon.IndexOf(_conf_walletFTC) > 0)
+            try
             {
-                JSon = JSon.Substring(JSon.IndexOf(_conf_walletFTC));
-                JSon = JSon.Remove(JSon.IndexOf("}"));
-                string[] parts = JSon.Split(',');
-                string hashrate = "";
-                foreach (string part in parts)
+                if (!APIError)
                 {
-                    if (part.Contains(_conf_walletFTC))
+                    string JSon = e.Result;
+                    JSon = JSon.Replace("\"", "");
+                    if (JSon.IndexOf(_conf_walletFTC) > 0)
                     {
-                        hashrate = part.Split(':')[1];
+                        JSon = JSon.Substring(JSon.IndexOf(_conf_walletFTC));
+                        JSon = JSon.Remove(JSon.IndexOf("}"));
+                        string[] parts = JSon.Split(',');
+                        string hashrate = "";
+                        foreach (string part in parts)
+                        {
+                            if (part.Contains(_conf_walletFTC))
+                            {
+                                hashrate = part.Split(':')[1];
+                            }
+                        }
+                        if (hashrate != "")
+                        {
+                            double rate = Convert.ToDouble(hashrate.Replace('.', ','));
+                            rate = rate / 1000;
+                            lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
+                            chaHash.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), rate));
+                        }
                     }
                 }
-                if (hashrate != "")
-                {
-                    double rate = Convert.ToDouble(hashrate.Replace('.', ','));
-                    rate = rate / 1000;
-                    lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
-                    chaHash.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), rate));
-                }
+            }
+            catch
+            {
+
+                APIError = true;
+                MessageBox.Show("P2Pool API Request failed! Please check your configuration." + Environment.NewLine + "If the error stays please report to the Developer.");
             }
         }
 
