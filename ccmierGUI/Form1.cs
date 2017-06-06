@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -26,6 +25,9 @@ namespace ccmierGUI
         string _conf_coinotronWRK = "";
         string _conf_walletFTC = "";
         string _conf_currency = "";
+        string _conf_p2pool = "";
+        WebClient poolAPI = new WebClient();
+        Uri APIAdress;
 
         private void frmMain_Load(object sender, EventArgs e)
         {
@@ -51,9 +53,27 @@ namespace ccmierGUI
                     case "ccminerArgs":
                         txtCMD.Text = ConfigurationManager.AppSettings.GetValues(key)[0];
                         break;
+                    case "p2poolAddress":
+                        _conf_p2pool = ConfigurationManager.AppSettings.GetValues(key)[0];
+                        break;
                 }
             }
-            if (_conf_coinotronAPI == "" || _conf_coinotronWRK == "")
+
+            bool haspool = false;
+            if (_conf_coinotronAPI != "" && _conf_coinotronWRK != "")
+            {
+                haspool = true;
+                poolAPI.DownloadStringCompleted += _API_coinotronCall;
+                APIAdress = new Uri("https://www.coinotron.com/app?action=api&api_key=" + _conf_coinotronAPI);
+            }
+            else if (_conf_p2pool != "" && _conf_walletFTC != "")
+            {
+                haspool = true;
+                poolAPI.DownloadStringCompleted += _API_p2poolCall;
+                APIAdress = new Uri(_conf_p2pool + "/local_stats");
+            }
+
+            if (!haspool)
             {
                 chaHash.Series.RemoveAt(1);
             }
@@ -128,6 +148,8 @@ namespace ccmierGUI
             }
             
         }
+
+        DateTime hashtime;
 
         private void Ccminer_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -353,35 +375,9 @@ namespace ccmierGUI
                     mstall = 0;
                 }
 
-                try
-                {
-                    if(_conf_coinotronAPI != "" && _conf_coinotronWRK != "")
-                    {
-                        WebClient clnt = new WebClient();
+                hashtime = tme;
+                poolAPI.DownloadStringAsync(APIAdress);
 
-                        string JSon = clnt.DownloadString("https://www.coinotron.com/app?action=api&api_key=" + _conf_coinotronAPI).Replace("\"", "");
-
-                        JSon = JSon.Substring(JSon.IndexOf(_conf_coinotronWRK));
-                        JSon = JSon.Remove(JSon.IndexOf("}"));
-                        string[] parts = JSon.Split(',');
-                        string hashrate = "";
-                        foreach (string part in parts)
-                        {
-                            if (part.Contains("hash"))
-                            {
-                                hashrate = part.Split(':')[1];
-                            }
-                        }
-
-                        if(hashrate != "")
-                        {
-                            lblNHash.Text = "N. Hashrate:" + hashrate;
-                            chaHash.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), hashrate));
-                        }
-                    }
-                }
-                catch
-                { }
                 DateTime max = tme.AddMinutes(1);
                 chaStat.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
                 chaStat.ChartAreas[0].AxisX.Maximum = max.ToOADate();
@@ -403,6 +399,56 @@ namespace ccmierGUI
             if (chaStat.Series[2].Points.Count > 60)
             {
                 chaStat.Series[2].Points.RemoveAt(0);
+            }
+        }
+
+        private void _API_coinotronCall(object sender, DownloadStringCompletedEventArgs e)
+        {
+            string JSon = e.Result;
+            JSon = JSon.Replace("\"", "");
+            JSon = JSon.Substring(JSon.IndexOf(_conf_coinotronWRK));
+            JSon = JSon.Remove(JSon.IndexOf("}"));
+            string[] parts = JSon.Split(',');
+            string hashrate = "";
+            foreach (string part in parts)
+            {
+                if (part.Contains("hash"))
+                {
+                    hashrate = part.Split(':')[1];
+                }
+            }
+
+            if (hashrate != "")
+            {
+                lblNHash.Text = "N. Hashrate:" + hashrate;
+                chaHash.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), hashrate));
+            }
+        }
+
+        private void _API_p2poolCall(object sender, DownloadStringCompletedEventArgs e)
+        {
+            string JSon = e.Result;
+            JSon = JSon.Replace("\"", "");
+            if(JSon.IndexOf(_conf_walletFTC) > 0)
+            {
+                JSon = JSon.Substring(JSon.IndexOf(_conf_walletFTC));
+                JSon = JSon.Remove(JSon.IndexOf("}"));
+                string[] parts = JSon.Split(',');
+                string hashrate = "";
+                foreach (string part in parts)
+                {
+                    if (part.Contains(_conf_walletFTC))
+                    {
+                        hashrate = part.Split(':')[1];
+                    }
+                }
+                if (hashrate != "")
+                {
+                    double rate = Convert.ToDouble(hashrate.Replace('.', ','));
+                    rate = rate / 1000;
+                    lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
+                    chaHash.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), rate));
+                }
             }
         }
 
