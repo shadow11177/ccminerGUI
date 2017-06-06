@@ -1,5 +1,5 @@
 # ccminerGUI
-A GUI for the CCMiner for People mining on Coinotron
+A GUI for the CCMiner for People mining on Coinotron or P2Pool
 
 What is it for?<br />
 it shows some nice graphs of your Hashrate the value of Feathercoin.<br />
