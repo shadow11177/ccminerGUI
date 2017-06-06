@@ -19,6 +19,8 @@ Restarts your miner if
 </ul>
 <br /><br />
 
+![My image](preview.png)
+
 Required:<br />
 <ul>
 <li>
