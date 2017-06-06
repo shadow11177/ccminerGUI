@@ -1,6 +1,24 @@
 # ccminerGUI
 A GUI for the CCMiner for People mining on Coinotron
 
+What is it for?<br />
+it shows some nice graphs of your Hashrate the value of Feathercoin.<br />
+your wallet balance in coin and your desired currency<br />
+
+Restarts your miner if
+<ul>
+  <li>
+    it dosn't report Hashrates for 5 minutes
+  </li>
+  <li>
+    it chrashes
+  </li>
+  <li>
+    it reports extremely low hashrates
+  </li>
+</ul>
+<br /><br />
+
 Required:<br />
 <ul>
 <li>
