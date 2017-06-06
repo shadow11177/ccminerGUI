@@ -2,30 +2,30 @@
 A GUI for the CCMiner for People mining on Coinotron
 
 Required:<br />
+<ul>
 <li>
-<ul>
   Windows Machine
-  </ul>
-<ul>
+  </li>
+<li>
   .net Framework 4.5.2
-  </ul>
-<ul>
+  </li>
+<li>
   ccminer
-  </ul>
-</li>
+  </li>
+</ul>
   
 Optional:<br />
+<ul>
 <li>
-<ul>
   Feathercoin Wallet (For Balance and total Value of your Coins)
-  </ul>
-<ul>
+  </li>
+<li>
   coinotron as your Pool (For Netto Hashrate)
-  </ul>
-<ul>
+  </li>
+<li>
   or p2pool
-  </ul>
-</li>
+  </li>
+</ul>
 
 Config File (ccminerGUI.exe.config)
 
