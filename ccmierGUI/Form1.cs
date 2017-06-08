@@ -79,9 +79,9 @@ namespace ccmierGUI
                 chaHash.Series.RemoveAt(1);
             }
 
-            chaStat.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(DateTime.Now.ToOADate(), 0));
-            chaStat.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(DateTime.Now.ToOADate(), 0));
-            chaStat.Series[2].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(DateTime.Now.ToOADate(), 0));
+            chaStat.Series[0].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
+            chaStat.Series[1].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
+            chaStat.Series[2].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
         }
 
         Process ccminer;
@@ -222,7 +222,7 @@ namespace ccmierGUI
                 else if (e.Data.Contains("neoscrypt block"))
                 {
                     int pos = e.Data.LastIndexOf('\u001b');
-                    string block = e.Data.Substring(62, pos - 62);
+                    string block = e.Data.Substring(e.Data.IndexOf("neoscrypt block") + 15, pos - (e.Data.IndexOf("neoscrypt block") + 15));
                     lblBlock.Invoke(
                         new Action(() =>
                         {
@@ -388,26 +388,31 @@ namespace ccmierGUI
                     avg += acc5m[i];
                 }
                 avg = avg / acc5m.Count;
-                chaStat.Series[3].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), avg));
+                chaStat.Series[3].Points.Add(new DataPoint(tme.ToOADate(), avg));
 
                 if (mhits > 0)
                 {
-                    chaStat.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), mhits));
+                    chaStat.Series[0].Points.Add(new DataPoint(tme.ToOADate(), mhits));
                     mhits = 0;
                 }
                 if (merror > 0)
                 {
-                    chaStat.Series[2].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), merror));
+                    chaStat.Series[2].Points.Add(new DataPoint(tme.ToOADate(), merror));
                     merror = 0;
                 }
                 if (mstall > 0)
                 {
-                    chaStat.Series[1].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), mstall));
+                    chaStat.Series[1].Points.Add(new DataPoint(tme.ToOADate(), mstall));
                     mstall = 0;
                 }
 
                 hashtime = tme;
-                poolAPI.DownloadStringAsync(APIAdress);
+                try
+                {
+                    poolAPI.DownloadStringAsync(APIAdress);
+
+                }
+                catch { }
 
                 DateTime max = tme.AddMinutes(1);
                 chaStat.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
@@ -458,7 +463,7 @@ namespace ccmierGUI
                     if (hashrate != "")
                     {
                         lblNHash.Text = "N. Hashrate:" + hashrate;
-                        chaHash.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), hashrate));
+                        chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), hashrate));
                     }
                 }
             }
@@ -479,8 +484,9 @@ namespace ccmierGUI
                     JSon = JSon.Replace("\"", "");
                     if (JSon.IndexOf(_conf_walletFTC) > 0)
                     {
-                        JSon = JSon.Substring(JSon.IndexOf(_conf_walletFTC));
+                        JSon = JSon.Substring(JSon.IndexOf("miner_hash_rates"));
                         JSon = JSon.Remove(JSon.IndexOf("}"));
+                        JSon = JSon.Substring(JSon.IndexOf("{"));
                         string[] parts = JSon.Split(',');
                         string hashrate = "";
                         foreach (string part in parts)
@@ -495,7 +501,7 @@ namespace ccmierGUI
                             double rate = Convert.ToDouble(hashrate.Replace('.', ','));
                             rate = rate / 1000;
                             lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
-                            chaHash.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(hashtime.ToOADate(), rate));
+                            chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), rate));
                         }
                     }
                 }
@@ -537,7 +543,7 @@ namespace ccmierGUI
 
                 if(value > 0)
                 {
-                    chaFTC.Series[0].Points.Add(new System.Windows.Forms.DataVisualization.Charting.DataPoint(tme.ToOADate(), value));
+                    chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), value));
                 }
 
                 chaFTC.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
