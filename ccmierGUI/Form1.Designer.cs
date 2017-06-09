@@ -29,18 +29,18 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series12 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.btnStart = new System.Windows.Forms.Button();
             this.lstLog = new System.Windows.Forms.ListBox();
             this.txtCMD = new System.Windows.Forms.TextBox();
@@ -62,14 +62,19 @@
             this.lblWorth = new System.Windows.Forms.Label();
             this.lblBalance = new System.Windows.Forms.Label();
             this.lblValue = new System.Windows.Forms.Label();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.chaHash)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chaStat)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chaFTC)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(12, 12);
+            this.btnStart.Location = new System.Drawing.Point(12, 34);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
             this.btnStart.TabIndex = 0;
@@ -82,14 +87,14 @@
             this.lstLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lstLog.FormattingEnabled = true;
-            this.lstLog.Location = new System.Drawing.Point(517, 14);
+            this.lstLog.Location = new System.Drawing.Point(517, 36);
             this.lstLog.Name = "lstLog";
             this.lstLog.Size = new System.Drawing.Size(702, 108);
             this.lstLog.TabIndex = 1;
             // 
             // txtCMD
             // 
-            this.txtCMD.Location = new System.Drawing.Point(93, 14);
+            this.txtCMD.Location = new System.Drawing.Point(93, 36);
             this.txtCMD.Name = "txtCMD";
             this.txtCMD.Size = new System.Drawing.Size(418, 20);
             this.txtCMD.TabIndex = 2;
@@ -102,7 +107,7 @@
             // lblStat
             // 
             this.lblStat.AutoSize = true;
-            this.lblStat.Location = new System.Drawing.Point(9, 38);
+            this.lblStat.Location = new System.Drawing.Point(9, 60);
             this.lblStat.Name = "lblStat";
             this.lblStat.Size = new System.Drawing.Size(37, 13);
             this.lblStat.TabIndex = 3;
@@ -111,7 +116,7 @@
             // lblBHash
             // 
             this.lblBHash.AutoSize = true;
-            this.lblBHash.Location = new System.Drawing.Point(9, 51);
+            this.lblBHash.Location = new System.Drawing.Point(9, 73);
             this.lblBHash.Name = "lblBHash";
             this.lblBHash.Size = new System.Drawing.Size(72, 13);
             this.lblBHash.TabIndex = 4;
@@ -120,7 +125,7 @@
             // lblRestart
             // 
             this.lblRestart.AutoSize = true;
-            this.lblRestart.Location = new System.Drawing.Point(9, 77);
+            this.lblRestart.Location = new System.Drawing.Point(9, 99);
             this.lblRestart.Name = "lblRestart";
             this.lblRestart.Size = new System.Drawing.Size(55, 13);
             this.lblRestart.TabIndex = 5;
@@ -129,7 +134,7 @@
             // lblDifficulty
             // 
             this.lblDifficulty.AutoSize = true;
-            this.lblDifficulty.Location = new System.Drawing.Point(9, 90);
+            this.lblDifficulty.Location = new System.Drawing.Point(9, 112);
             this.lblDifficulty.Name = "lblDifficulty";
             this.lblDifficulty.Size = new System.Drawing.Size(56, 13);
             this.lblDifficulty.TabIndex = 6;
@@ -138,7 +143,7 @@
             // lblBlock
             // 
             this.lblBlock.AutoSize = true;
-            this.lblBlock.Location = new System.Drawing.Point(124, 37);
+            this.lblBlock.Location = new System.Drawing.Point(124, 59);
             this.lblBlock.Name = "lblBlock";
             this.lblBlock.Size = new System.Drawing.Size(46, 13);
             this.lblBlock.TabIndex = 7;
@@ -147,7 +152,7 @@
             // lblAccepted
             // 
             this.lblAccepted.AutoSize = true;
-            this.lblAccepted.Location = new System.Drawing.Point(124, 51);
+            this.lblAccepted.Location = new System.Drawing.Point(124, 73);
             this.lblAccepted.Name = "lblAccepted";
             this.lblAccepted.Size = new System.Drawing.Size(65, 13);
             this.lblAccepted.TabIndex = 8;
@@ -158,24 +163,24 @@
             this.chaHash.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.chaHash.BackColor = System.Drawing.SystemColors.ButtonFace;
-            chartArea1.BackColor = System.Drawing.SystemColors.ButtonFace;
-            chartArea1.Name = "ChartArea1";
-            this.chaHash.ChartAreas.Add(chartArea1);
-            legend1.BackColor = System.Drawing.SystemColors.ButtonFace;
-            legend1.Name = "Legend1";
-            this.chaHash.Legends.Add(legend1);
+            chartArea4.BackColor = System.Drawing.SystemColors.ButtonFace;
+            chartArea4.Name = "ChartArea1";
+            this.chaHash.ChartAreas.Add(chartArea4);
+            legend4.BackColor = System.Drawing.SystemColors.ButtonFace;
+            legend4.Name = "Legend1";
+            this.chaHash.Legends.Add(legend4);
             this.chaHash.Location = new System.Drawing.Point(2, 307);
             this.chaHash.Name = "chaHash";
             this.chaHash.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
-            series1.BorderColor = System.Drawing.Color.Blue;
-            series1.BorderWidth = 3;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
-            series1.Legend = "Legend1";
-            series1.Name = "N. Hashrate";
-            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
-            this.chaHash.Series.Add(series1);
+            series7.BorderColor = System.Drawing.Color.Blue;
+            series7.BorderWidth = 3;
+            series7.ChartArea = "ChartArea1";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series7.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            series7.Legend = "Legend1";
+            series7.Name = "N. Hashrate";
+            series7.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            this.chaHash.Series.Add(series7);
             this.chaHash.Size = new System.Drawing.Size(1217, 165);
             this.chaHash.TabIndex = 9;
             this.chaHash.Text = "chart1";
@@ -194,57 +199,57 @@
             this.chaStat.BackImageTransparentColor = System.Drawing.Color.White;
             this.chaStat.BackSecondaryColor = System.Drawing.SystemColors.ButtonFace;
             this.chaStat.BorderlineColor = System.Drawing.SystemColors.ButtonFace;
-            chartArea2.AxisX.LineColor = System.Drawing.Color.DimGray;
-            chartArea2.AxisX2.LineColor = System.Drawing.Color.DimGray;
-            chartArea2.AxisY.LineColor = System.Drawing.Color.DimGray;
-            chartArea2.AxisY2.LineColor = System.Drawing.Color.DimGray;
-            chartArea2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            chartArea2.BackSecondaryColor = System.Drawing.Color.Gray;
-            chartArea2.BorderColor = System.Drawing.Color.Gray;
-            chartArea2.Name = "ChartArea1";
-            this.chaStat.ChartAreas.Add(chartArea2);
-            legend2.BackColor = System.Drawing.SystemColors.ButtonFace;
-            legend2.Name = "Legend1";
-            this.chaStat.Legends.Add(legend2);
+            chartArea5.AxisX.LineColor = System.Drawing.Color.DimGray;
+            chartArea5.AxisX2.LineColor = System.Drawing.Color.DimGray;
+            chartArea5.AxisY.LineColor = System.Drawing.Color.DimGray;
+            chartArea5.AxisY2.LineColor = System.Drawing.Color.DimGray;
+            chartArea5.BackColor = System.Drawing.SystemColors.ButtonFace;
+            chartArea5.BackSecondaryColor = System.Drawing.Color.Gray;
+            chartArea5.BorderColor = System.Drawing.Color.Gray;
+            chartArea5.Name = "ChartArea1";
+            this.chaStat.ChartAreas.Add(chartArea5);
+            legend5.BackColor = System.Drawing.SystemColors.ButtonFace;
+            legend5.Name = "Legend1";
+            this.chaStat.Legends.Add(legend5);
             this.chaStat.Location = new System.Drawing.Point(2, 150);
             this.chaStat.Name = "chaStat";
             this.chaStat.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
-            series2.BorderWidth = 3;
-            series2.ChartArea = "ChartArea1";
-            series2.Color = System.Drawing.Color.Lime;
-            series2.IsValueShownAsLabel = true;
-            series2.Legend = "Legend1";
-            series2.Name = "Accepted";
-            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
-            series2.YValuesPerPoint = 6;
-            series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            series3.BorderWidth = 3;
-            series3.ChartArea = "ChartArea1";
-            series3.Color = System.Drawing.Color.Yellow;
-            series3.IsValueShownAsLabel = true;
-            series3.Legend = "Legend1";
-            series3.Name = "Stales";
-            series3.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
-            series3.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            series4.ChartArea = "ChartArea1";
-            series4.Color = System.Drawing.Color.Red;
-            series4.IsValueShownAsLabel = true;
-            series4.Legend = "Legend1";
-            series4.Name = "Errors";
-            series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
-            series4.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            series5.BorderWidth = 3;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series5.Color = System.Drawing.Color.DarkGreen;
-            series5.Legend = "Legend1";
-            series5.Name = "5M avg.";
-            series5.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
-            series5.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
-            this.chaStat.Series.Add(series2);
-            this.chaStat.Series.Add(series3);
-            this.chaStat.Series.Add(series4);
-            this.chaStat.Series.Add(series5);
+            series8.BorderWidth = 3;
+            series8.ChartArea = "ChartArea1";
+            series8.Color = System.Drawing.Color.Lime;
+            series8.IsValueShownAsLabel = true;
+            series8.Legend = "Legend1";
+            series8.Name = "Accepted";
+            series8.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series8.YValuesPerPoint = 6;
+            series8.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            series9.BorderWidth = 3;
+            series9.ChartArea = "ChartArea1";
+            series9.Color = System.Drawing.Color.Yellow;
+            series9.IsValueShownAsLabel = true;
+            series9.Legend = "Legend1";
+            series9.Name = "Stales";
+            series9.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series9.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            series10.ChartArea = "ChartArea1";
+            series10.Color = System.Drawing.Color.Red;
+            series10.IsValueShownAsLabel = true;
+            series10.Legend = "Legend1";
+            series10.Name = "Errors";
+            series10.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series10.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            series11.BorderWidth = 3;
+            series11.ChartArea = "ChartArea1";
+            series11.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series11.Color = System.Drawing.Color.DarkGreen;
+            series11.Legend = "Legend1";
+            series11.Name = "5M avg.";
+            series11.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            series11.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
+            this.chaStat.Series.Add(series8);
+            this.chaStat.Series.Add(series9);
+            this.chaStat.Series.Add(series10);
+            this.chaStat.Series.Add(series11);
             this.chaStat.Size = new System.Drawing.Size(1217, 165);
             this.chaStat.TabIndex = 10;
             this.chaStat.Text = "chart2";
@@ -253,7 +258,7 @@
             // lblNHash
             // 
             this.lblNHash.AutoSize = true;
-            this.lblNHash.Location = new System.Drawing.Point(9, 64);
+            this.lblNHash.Location = new System.Drawing.Point(9, 86);
             this.lblNHash.Name = "lblNHash";
             this.lblNHash.Size = new System.Drawing.Size(73, 13);
             this.lblNHash.TabIndex = 11;
@@ -269,24 +274,24 @@
             this.chaFTC.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.chaFTC.BackColor = System.Drawing.SystemColors.ButtonFace;
-            chartArea3.BackColor = System.Drawing.SystemColors.ButtonFace;
-            chartArea3.Name = "ChartArea1";
-            this.chaFTC.ChartAreas.Add(chartArea3);
-            legend3.BackColor = System.Drawing.SystemColors.ButtonFace;
-            legend3.Name = "Legend1";
-            this.chaFTC.Legends.Add(legend3);
+            chartArea6.BackColor = System.Drawing.SystemColors.ButtonFace;
+            chartArea6.Name = "ChartArea1";
+            this.chaFTC.ChartAreas.Add(chartArea6);
+            legend6.BackColor = System.Drawing.SystemColors.ButtonFace;
+            legend6.Name = "Legend1";
+            this.chaFTC.Legends.Add(legend6);
             this.chaFTC.Location = new System.Drawing.Point(2, 459);
             this.chaFTC.Name = "chaFTC";
             this.chaFTC.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
-            series6.BackSecondaryColor = System.Drawing.SystemColors.ButtonFace;
-            series6.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series6.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            series6.Legend = "Legend1";
-            series6.Name = "FTC -> EUR";
-            series6.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
-            this.chaFTC.Series.Add(series6);
+            series12.BackSecondaryColor = System.Drawing.SystemColors.ButtonFace;
+            series12.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            series12.ChartArea = "ChartArea1";
+            series12.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series12.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            series12.Legend = "Legend1";
+            series12.Name = "FTC -> EUR";
+            series12.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Time;
+            this.chaFTC.Series.Add(series12);
             this.chaFTC.Size = new System.Drawing.Size(1217, 165);
             this.chaFTC.TabIndex = 12;
             this.chaFTC.Text = "chart3";
@@ -295,7 +300,7 @@
             // lblStale
             // 
             this.lblStale.AutoSize = true;
-            this.lblStale.Location = new System.Drawing.Point(124, 64);
+            this.lblStale.Location = new System.Drawing.Point(124, 86);
             this.lblStale.Name = "lblStale";
             this.lblStale.Size = new System.Drawing.Size(40, 13);
             this.lblStale.TabIndex = 13;
@@ -304,7 +309,7 @@
             // lblError
             // 
             this.lblError.AutoSize = true;
-            this.lblError.Location = new System.Drawing.Point(124, 77);
+            this.lblError.Location = new System.Drawing.Point(124, 99);
             this.lblError.Name = "lblError";
             this.lblError.Size = new System.Drawing.Size(38, 13);
             this.lblError.TabIndex = 14;
@@ -313,7 +318,7 @@
             // lblWorth
             // 
             this.lblWorth.AutoSize = true;
-            this.lblWorth.Location = new System.Drawing.Point(124, 90);
+            this.lblWorth.Location = new System.Drawing.Point(124, 112);
             this.lblWorth.Name = "lblWorth";
             this.lblWorth.Size = new System.Drawing.Size(74, 13);
             this.lblWorth.TabIndex = 15;
@@ -322,7 +327,7 @@
             // lblBalance
             // 
             this.lblBalance.AutoSize = true;
-            this.lblBalance.Location = new System.Drawing.Point(294, 64);
+            this.lblBalance.Location = new System.Drawing.Point(294, 86);
             this.lblBalance.Name = "lblBalance";
             this.lblBalance.Size = new System.Drawing.Size(55, 13);
             this.lblBalance.TabIndex = 16;
@@ -331,11 +336,44 @@
             // lblValue
             // 
             this.lblValue.AutoSize = true;
-            this.lblValue.Location = new System.Drawing.Point(294, 77);
+            this.lblValue.Location = new System.Drawing.Point(294, 99);
             this.lblValue.Name = "lblValue";
             this.lblValue.Size = new System.Drawing.Size(43, 13);
             this.lblValue.TabIndex = 17;
             this.lblValue.Text = "Value:0";
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuToolStripMenuItem,
+            this.aboutToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1231, 24);
+            this.menuStrip1.TabIndex = 18;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // menuToolStripMenuItem
+            // 
+            this.menuToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem});
+            this.menuToolStripMenuItem.Name = "menuToolStripMenuItem";
+            this.menuToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
+            this.menuToolStripMenuItem.Text = "Menu";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // frmMain
             // 
@@ -360,6 +398,8 @@
             this.Controls.Add(this.txtCMD);
             this.Controls.Add(this.lstLog);
             this.Controls.Add(this.btnStart);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "frmMain";
             this.Text = "ccminerGUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
@@ -367,6 +407,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.chaHash)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chaStat)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chaFTC)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -395,6 +437,10 @@
         private System.Windows.Forms.Label lblWorth;
         private System.Windows.Forms.Label lblBalance;
         private System.Windows.Forms.Label lblValue;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem menuToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
     }
 }
 

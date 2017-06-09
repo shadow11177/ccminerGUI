@@ -73,12 +73,7 @@ namespace ccmierGUI
                 poolAPI.DownloadStringCompleted += _API_p2poolCall;
                 APIAdress = new Uri(_conf_p2pool + "/local_stats");
             }
-
-            if (!haspool)
-            {
-                chaHash.Series.RemoveAt(1);
-            }
-
+            
             chaStat.Series[0].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[1].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[2].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
@@ -184,7 +179,11 @@ namespace ccmierGUI
                         }
                         else
                         {
-                            GPUs[numgpu][0] = ((Convert.ToInt32(GPUs[numgpu][0]) + (int)rate) / 2).ToString();
+                            int lasthash = Convert.ToInt32(GPUs[numgpu][0]);
+                            if ((int)rate < lasthash * 2 )
+                            {
+                                GPUs[numgpu][0] = ((lasthash + (int)rate) / 2).ToString();
+                            }
                         }
                     }
                     lblBHash.Invoke(
@@ -438,78 +437,100 @@ namespace ccmierGUI
             }
         }
 
-        bool APIError = false;
+        int APIError = 0;
 
         private void _API_coinotronCall(object sender, DownloadStringCompletedEventArgs e)
         {
-            try
+
+            if (APIError < 5)
             {
-                if (!APIError)
+                try
                 {
                     string JSon = e.Result;
-                    JSon = JSon.Replace("\"", "");
-                    JSon = JSon.Substring(JSon.IndexOf(_conf_coinotronWRK));
-                    JSon = JSon.Remove(JSon.IndexOf("}"));
-                    string[] parts = JSon.Split(',');
-                    string hashrate = "";
-                    foreach (string part in parts)
+                    if (JSon.ToLower().Contains(_conf_coinotronWRK.ToLower()))
                     {
-                        if (part.Contains("hash"))
+                        JSon = JSon.Replace("\"", "");
+                        JSon = JSon.Substring(JSon.ToLower().IndexOf(_conf_coinotronWRK.ToLower()));
+                        JSon = JSon.Remove(JSon.IndexOf("}"));
+                        string[] parts = JSon.Split(',');
+                        string hashrate = "";
+                        foreach (string part in parts)
                         {
-                            hashrate = part.Split(':')[1];
+                            if (part.Contains("hash"))
+                            {
+                                hashrate = part.Split(':')[1];
+                            }
                         }
-                    }
 
-                    if (hashrate != "")
+                        if (hashrate != "")
+                        {
+                            lblNHash.Text = "N. Hashrate:" + hashrate;
+                            chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), hashrate));
+                        }
+                        APIError = 0;
+                    }
+                    else
                     {
-                        lblNHash.Text = "N. Hashrate:" + hashrate;
-                        chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), hashrate));
+                        APIError++;
                     }
                 }
+                catch
+                {
+                    APIError++;
+                }
             }
-            catch
+            else
             {
-                APIError = true;
                 MessageBox.Show("Coinotron API Request failed! Please check your configuration." + Environment.NewLine + "If the error stays please report to the Developer.");
             }
         }
 
         private void _API_p2poolCall(object sender, DownloadStringCompletedEventArgs e)
         {
-            try
+            if (APIError < 5)
             {
-                if (!APIError)
+                try
                 {
                     string JSon = e.Result;
-                    JSon = JSon.Replace("\"", "");
-                    if (JSon.IndexOf(_conf_walletFTC) > 0)
+                    if (JSon.ToLower().Contains(_conf_coinotronWRK.ToLower()))
                     {
-                        JSon = JSon.Substring(JSon.IndexOf("miner_hash_rates"));
-                        JSon = JSon.Remove(JSon.IndexOf("}"));
-                        JSon = JSon.Substring(JSon.IndexOf("{"));
-                        string[] parts = JSon.Split(',');
-                        string hashrate = "";
-                        foreach (string part in parts)
+                        JSon = JSon.Replace("\"", "");
+                        if (JSon.IndexOf(_conf_walletFTC) > 0)
                         {
-                            if (part.Contains(_conf_walletFTC))
+                            JSon = JSon.Substring(JSon.IndexOf("miner_hash_rates"));
+                            JSon = JSon.Remove(JSon.IndexOf("}"));
+                            JSon = JSon.Substring(JSon.IndexOf("{"));
+                            string[] parts = JSon.Split(',');
+                            string hashrate = "";
+                            foreach (string part in parts)
                             {
-                                hashrate = part.Split(':')[1];
+                                if (part.Contains(_conf_walletFTC))
+                                {
+                                    hashrate = part.Split(':')[1];
+                                }
+                            }
+                            if (hashrate != "")
+                            {
+                                double rate = Convert.ToDouble(hashrate.Replace('.', ','));
+                                rate = rate / 1000;
+                                lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
+                                chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), rate));
                             }
                         }
-                        if (hashrate != "")
-                        {
-                            double rate = Convert.ToDouble(hashrate.Replace('.', ','));
-                            rate = rate / 1000;
-                            lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
-                            chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), rate));
-                        }
+                        APIError = 0;
+                    }
+                    else
+                    {
+                        APIError++;
                     }
                 }
+                catch
+                {
+                    APIError++;
+                }
             }
-            catch
+            else
             {
-
-                APIError = true;
                 MessageBox.Show("P2Pool API Request failed! Please check your configuration." + Environment.NewLine + "If the error stays please report to the Developer.");
             }
         }
@@ -554,6 +575,80 @@ namespace ccmierGUI
                 }
             }
             catch { }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmAbout about = new frmAbout();
+            about.Show();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmSettings settings = new frmSettings();
+            if(settings.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    if (!ccminer.HasExited)
+                    {
+                        running = false;
+                        btnStart.Text = "Start";
+                        ccminer.OutputDataReceived -= Ccminer_OutputDataReceived;
+                        ccminer.ErrorDataReceived -= Ccminer_ErrorDataReceived;
+                        ccminer.CancelErrorRead();
+                        ccminer.CancelOutputRead();
+                        ccminer.Kill();
+                    }
+                }
+                catch { }
+
+                string[] config = ConfigurationManager.AppSettings.AllKeys;
+
+                foreach (string key in config)
+                {
+                    switch (key)
+                    {
+                        case "CoinotronAPI":
+                            _conf_coinotronAPI = ConfigurationManager.AppSettings.GetValues(key)[0];
+                            break;
+                        case "CoinotronWorker":
+                            _conf_coinotronWRK = ConfigurationManager.AppSettings.GetValues(key)[0];
+                            break;
+                        case "Currency":
+                            _conf_currency = ConfigurationManager.AppSettings.GetValues(key)[0];
+                            break;
+                        case "FeathercoinWalletAddress":
+                            _conf_walletFTC = ConfigurationManager.AppSettings.GetValues(key)[0];
+                            break;
+                        case "ccminerArgs":
+                            txtCMD.Text = ConfigurationManager.AppSettings.GetValues(key)[0];
+                            break;
+                        case "p2poolAddress":
+                            _conf_p2pool = ConfigurationManager.AppSettings.GetValues(key)[0];
+                            break;
+                    }
+                }
+
+                bool haspool = false;
+                if (_conf_coinotronAPI != "" && _conf_coinotronWRK != "")
+                {
+                    haspool = true;
+                    poolAPI.DownloadStringCompleted += _API_coinotronCall;
+                    APIAdress = new Uri("https://www.coinotron.com/app?action=api&api_key=" + _conf_coinotronAPI);
+                }
+                else if (_conf_p2pool != "" && _conf_walletFTC != "")
+                {
+                    haspool = true;
+                    poolAPI.DownloadStringCompleted += _API_p2poolCall;
+                    APIAdress = new Uri(_conf_p2pool + "/local_stats");
+                }
+
+                if (!haspool)
+                {
+                    //chaHash.Series.RemoveAt(1);
+                }
+            }
         }
     }
 }
