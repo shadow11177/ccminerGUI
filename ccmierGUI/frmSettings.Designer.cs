@@ -43,13 +43,21 @@
             this.txtAddress = new System.Windows.Forms.TextBox();
             this.lblAddress = new System.Windows.Forms.Label();
             this.btnAbort = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cboMiner = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtPath = new System.Windows.Forms.TextBox();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.ofdMiner = new System.Windows.Forms.OpenFileDialog();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtIntensity = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Location = new System.Drawing.Point(271, 208);
+            this.btnSave.Location = new System.Drawing.Point(271, 282);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 0;
@@ -185,7 +193,7 @@
             // btnAbort
             // 
             this.btnAbort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAbort.Location = new System.Drawing.Point(352, 208);
+            this.btnAbort.Location = new System.Drawing.Point(352, 282);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(75, 23);
             this.btnAbort.TabIndex = 14;
@@ -193,11 +201,83 @@
             this.btnAbort.UseVisualStyleBackColor = true;
             this.btnAbort.Click += new System.EventHandler(this.btnAbort_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(15, 208);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(36, 13);
+            this.label3.TabIndex = 16;
+            this.label3.Text = "Miner:";
+            // 
+            // cboMiner
+            // 
+            this.cboMiner.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMiner.FormattingEnabled = true;
+            this.cboMiner.Location = new System.Drawing.Point(109, 205);
+            this.cboMiner.Name = "cboMiner";
+            this.cboMiner.Size = new System.Drawing.Size(318, 21);
+            this.cboMiner.TabIndex = 15;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(15, 233);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(32, 13);
+            this.label4.TabIndex = 18;
+            this.label4.Text = "Path:";
+            // 
+            // txtPath
+            // 
+            this.txtPath.Location = new System.Drawing.Point(109, 230);
+            this.txtPath.Name = "txtPath";
+            this.txtPath.Size = new System.Drawing.Size(238, 20);
+            this.txtPath.TabIndex = 17;
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.Location = new System.Drawing.Point(353, 228);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(75, 23);
+            this.btnSearch.TabIndex = 19;
+            this.btnSearch.Text = "Search...";
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+            // 
+            // ofdMiner
+            // 
+            this.ofdMiner.FileName = "Miner.exe";
+            this.ofdMiner.Filter = "Neoscrypt-Miner|*.exe";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(15, 257);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(49, 13);
+            this.label5.TabIndex = 21;
+            this.label5.Text = "Intensity:";
+            // 
+            // txtIntensity
+            // 
+            this.txtIntensity.Location = new System.Drawing.Point(109, 254);
+            this.txtIntensity.Name = "txtIntensity";
+            this.txtIntensity.Size = new System.Drawing.Size(318, 20);
+            this.txtIntensity.TabIndex = 20;
+            // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(439, 242);
+            this.ClientSize = new System.Drawing.Size(439, 316);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.txtIntensity);
+            this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.txtPath);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.cboMiner);
             this.Controls.Add(this.btnAbort);
             this.Controls.Add(this.lblAddress);
             this.Controls.Add(this.txtAddress);
@@ -239,5 +319,13 @@
         private System.Windows.Forms.TextBox txtAddress;
         private System.Windows.Forms.Label lblAddress;
         private System.Windows.Forms.Button btnAbort;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cboMiner;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtPath;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.OpenFileDialog ofdMiner;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtIntensity;
     }
 }

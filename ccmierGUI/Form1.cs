@@ -12,6 +12,8 @@ using System.Windows.Forms;
 using System.Configuration;
 using System.Collections.Specialized;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace ccmierGUI
 {
@@ -22,524 +24,145 @@ namespace ccmierGUI
             InitializeComponent();
         }
 
-        string _conf_coinotronAPI = "";
-        string _conf_coinotronWRK = "";
+        pool pool;
         string _conf_walletFTC = "";
         string _conf_currency = "";
-        string _conf_p2pool = "";
-        WebClient poolAPI = new WebClient();
-        Uri APIAdress;
+        int time = 60;
+        miner mn;
+
+        List<string> CMiners = new List<string>();
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            //coinotronAPI = ;
-            string[] config = ConfigurationManager.AppSettings.AllKeys;
+            CMiners.Add("CCMiner");
+            CMiners.Add("NSGMiner");
+            CMiners.Add("BFGMiner");
 
-            foreach(string key in config)
-            {
-                switch( key)
-                {
-                    case "CoinotronAPI":
-                        _conf_coinotronAPI = ConfigurationManager.AppSettings.GetValues(key)[0];
-                        break;
-                    case "CoinotronWorker":
-                        _conf_coinotronWRK = ConfigurationManager.AppSettings.GetValues(key)[0];
-                        break;
-                    case "Currency":
-                        _conf_currency = ConfigurationManager.AppSettings.GetValues(key)[0];
-                        break;
-                    case "FeathercoinWalletAddress":
-                        _conf_walletFTC = ConfigurationManager.AppSettings.GetValues(key)[0];
-                        break;
-                    case "ccminerArgs":
-                        txtCMD.Text = ConfigurationManager.AppSettings.GetValues(key)[0];
-                        break;
-                    case "p2poolAddress":
-                        _conf_p2pool = ConfigurationManager.AppSettings.GetValues(key)[0];
-                        break;
-                }
-            }
+            var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var settings = configFile.AppSettings.Settings;
 
-            bool haspool = false;
-            if (_conf_coinotronAPI != "" && _conf_coinotronWRK != "")
-            {
-                haspool = true;
-                poolAPI.DownloadStringCompleted += _API_coinotronCall;
-                APIAdress = new Uri("https://www.coinotron.com/app?action=api&api_key=" + _conf_coinotronAPI);
-            }
-            else if (_conf_p2pool != "" && _conf_walletFTC != "")
-            {
-                haspool = true;
-                poolAPI.DownloadStringCompleted += _API_p2poolCall;
-                APIAdress = new Uri(_conf_p2pool + "/local_stats");
-            }
-            
+            _conf_walletFTC = settings["FeathercoinWalletAddress"].Value;
+            _conf_currency = settings["Currency"].Value;
+
             chaStat.Series[0].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[1].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[2].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
         }
 
-        Process ccminer;
-
-        bool restart = false;
-        int restarts = 0;
-
-        int minute = 0;
-        int mhits = 0;
-        int merror = 0;
-        int mstall = 0;
-
-        int lastacc = 0;
-
-        int allerror = 0;
-        int allstall = 0;
-
-        List<int> acc5m = new List<int>();
-        Dictionary<int, string[]> GPUs = new Dictionary<int, string[]>();
-
-        DateTime lastupdate;
-
-        bool running = false;
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if(running)
+            if(mn != null)
             {
-                running = false;
-                btnStart.Text = "Start";
-                ccminer.OutputDataReceived -= Ccminer_OutputDataReceived;
-                ccminer.ErrorDataReceived -= Ccminer_ErrorDataReceived;
-                ccminer.CancelErrorRead();
-                ccminer.CancelOutputRead();
-                ccminer.Kill();
+                Stop();
             }
             else
             {
-                lastupdate = DateTime.Now;
-                tmrFeatherStat_Tick(null, null);
-                tmrFeatherStat.Enabled = true;
-                running = true;
-                btnStart.Text = "Stop";
-                minute = DateTime.Now.Minute;
-                ccminer = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "ccminer.exe",
-                        Arguments = txtCMD.Text,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true
-                    }
-                };
-
-                ccminer.OutputDataReceived += Ccminer_OutputDataReceived;
-                ccminer.ErrorDataReceived += Ccminer_ErrorDataReceived;
-                ccminer.Start();
-                ccminer.BeginOutputReadLine();
-                ccminer.BeginErrorReadLine();
-                tmrProbe.Enabled = true;
-                tmrChart.Enabled = true;
-            }
-            
-        }
-
-        DateTime hashtime;
-
-        private void Ccminer_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data != null)
-            {
-                if (e.Data.Contains("GPU #") && !e.Data.Contains("does not validate on CPU!")) //[2017-06-06 17:37:36] GPU #0: GeForce GTX 970, 246[0m
-                {
-                    string num = e.Data.Substring(e.Data.IndexOf('#') + 1);
-                    string gpuname = num.Substring(num.IndexOf(':') + 2);
-                    gpuname = gpuname.Remove(gpuname.IndexOf(','));
-                    num = num.Remove(num.IndexOf(':'));
-                    //int numgpu = e.Data
-
-                    
-
-                    int pos = e.Data.LastIndexOf('\u001b');
-                    string hashrate = e.Data.Substring(47, pos - 47);
-                    long rate = Convert.ToInt64(hashrate);
-                    lastupdate = DateTime.Now;
-                    if (rate <= 50)
-                    {
-                        restart = true;
-                    }
-                    else
-                    {
-                        int numgpu = Convert.ToInt32(num);
-                        if (!GPUs.ContainsKey(numgpu))
-                        {
-                            string[] newGPU = { hashrate, gpuname , ""};
-                            GPUs.Add(numgpu, newGPU);
-                        }
-                        else
-                        {
-                            int lasthash = Convert.ToInt32(GPUs[numgpu][0]);
-                            if ((int)rate < lasthash * 2 )
-                            {
-                                GPUs[numgpu][0] = ((lasthash + (int)rate) / 2).ToString();
-                            }
-                        }
-                    }
-                    lblBHash.Invoke(
-                        new Action(() =>
-                        {
-                            int allhash = 0;
-                            foreach(int gpuid in GPUs.Keys)
-                            {
-                                allhash = allhash + Convert.ToInt32(GPUs[gpuid][0]);
-                            }
-                            lblBHash.Text = "B. Hashrate:" + allhash.ToString();
-                        }));
-                }
-                else if (e.Data.Contains("Stratum difficulty"))
-                {
-                    int pos = e.Data.LastIndexOf('\u001b');
-                    string difficulty = e.Data.Substring(53, pos - 53);
-                    lblDifficulty.Invoke(
-                        new Action(() =>
-                        {
-                            lblDifficulty.Text = "Difficulty:" + difficulty;
-                        }));
-
-                }
-                else if (e.Data.Contains("does not validate on CPU!"))
-                {
-                    merror++;
-                    allerror++;
-                    lblError.Invoke(
-                    new Action(() =>
-                    {
-                        lblError.Text = "Error:" + allerror.ToString();
-                    }));
-                }
-                else if (e.Data.Contains("neoscrypt block"))
-                {
-                    int pos = e.Data.LastIndexOf('\u001b');
-                    string block = e.Data.Substring(e.Data.IndexOf("neoscrypt block") + 15, pos - (e.Data.IndexOf("neoscrypt block") + 15));
-                    lblBlock.Invoke(
-                        new Action(() =>
-                        {
-                            lblBlock.Text = "Block:" + block;
-                        }));
-
-                }
-                else if (e.Data.Contains("accepted: "))
-                {
-                    int pos = e.Data.LastIndexOf(':');
-                    int spos = e.Data.LastIndexOf(')');
-                    string rate = e.Data.Substring(pos+2, spos - (pos+1));
-                    int acc = Convert.ToInt32(rate.Split('/')[0]);
-                    if(acc != lastacc)
-                    {
-                        lastacc = acc;
-                        mhits++;
-                    }
-                    else
-                    {
-                        allstall++;
-                        lblStale.Invoke(
-                        new Action(() =>
-                        {
-                            lblStale.Text = "Stale:" + allstall.ToString();
-                        }));
-                        mstall++;
-                    }
-                    lblAccepted.Invoke(
-                        new Action(() =>
-                        {
-                            lblAccepted.Text = "Accepted:" + rate + " - " + e.Data.Substring(1, 19);
-                        }));
-
-                }
-                else
-                {
-                    lstLog.Invoke(new Action(() =>
-                    {
-                        lstLog.Items.Add(e.Data);
-                    }));
-                }
+                Start();
             }
         }
 
-        private void Ccminer_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        private void Start()
         {
-            if(e.Data != null)
-            {
-                lstLog.Invoke(new Action(() =>
-                {
-                    lstLog.Items.Add(e.Data);
-                }));
-            }
+            btnStart.Text = "Stop";
+            mn = new miner();
+            mn.OnMinerEvent += Mn_OnMinerEvent;
+            mn.OnMinerReportEvent += Mn_OnMinerReportEvent;
+            mn.Run();
+            pool = new pool();
+            pool.OnPoolEvent += Pool_OnPoolEvent;
+            pool.Run();
+            tmrInitialise.Enabled = true;
         }
 
-        private void tmrProbe_Tick(object sender, EventArgs e)
+        private void Stop()
         {
-            try
-            {
-                if (ccminer.HasExited)
-                {
-                    lblStat.Text = "Offline";
-                    tmrProbe.Enabled = false;
-                    makeRestart(); 
-                }
-                else
-                {
-                    lblStat.Text = "Online";
-                }
-            }
-            catch
-            {
-                lblStat.Text = "Offline";
-            }
-            
-            int diff = lastupdate.AddMinutes(5).CompareTo(DateTime.Now);
+            btnStart.Text = "Start";
+            mn.Stop();
+            mn.OnMinerEvent -= Mn_OnMinerEvent;
+            mn.OnMinerReportEvent -= Mn_OnMinerReportEvent;
+            mn = null;
 
-            DateTime show = DateTime.Now;
-            TimeSpan shows = show.Subtract(lastupdate);
-            
-
-            this.Text = "ccminerGUI - " + shows.ToString(@"mm\:ss");
-
-            if (diff < 0)
-            {
-                restart = true;
-            }
-
-            if (restart)
-            {
-                restart = false;
-                tmrProbe.Enabled = false;
-                lblStat.Text = "Offline";
-                makeRestart();
-                restarts++;
-                lblRestart.Text = "Restarts:" + restarts;
-            }
-
+            pool.OnPoolEvent -= Pool_OnPoolEvent;
+            pool = null;
         }
 
-        private void makeRestart()
+        private void Mn_OnMinerReportEvent(object sender, minerReportEventArgs e)
         {
-            ccminer.OutputDataReceived -= Ccminer_OutputDataReceived;
-            ccminer.ErrorDataReceived -= Ccminer_ErrorDataReceived;
-            ccminer.CancelErrorRead();
-            ccminer.CancelOutputRead();
-            ccminer.Kill();
-
-            ccminer = new Process
+            Invoke(new Action(() =>
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "ccminer.exe",
-                    Arguments = txtCMD.Text,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
+                lblInitialise.Visible = false;
+                lblAccepted.Text = "Accepted: " + e.report.allshare.ToString();
+                lblBHash.Text = "B. Hashrate: " + e.report.allhash.ToString();
+                lblBlock.Text = "Block: " + e.report.block;
+                lblDifficulty.Text = "Difficulty: " + e.report.difficulty;
+                lblError.Text = "Error: " + e.report.allerror.ToString();
+                lblStale.Text = "Stale: " + e.report.allstale.ToString();
+                lblCMD.Text = e.report.cmd;
 
-            ccminer.OutputDataReceived += Ccminer_OutputDataReceived;
-            ccminer.ErrorDataReceived += Ccminer_ErrorDataReceived;
-            ccminer.Start();
-            ccminer.BeginOutputReadLine();
-            ccminer.BeginErrorReadLine();
-            tmrProbe.Enabled = true;
-        }
-
-        private void tmrChart_Tick(object sender, EventArgs e)
-        {
-            if (minute != DateTime.Now.Minute)
-            {
                 DateTime tme = DateTime.Now;
-                tme = tme.AddSeconds(tme.Second * -1);
-                DateTime scroll = tme.AddHours(-1);
-
-                foreach(int GPUID in GPUs.Keys)
+                foreach (int GPUID in e.report.GPUs.Keys)
                 {
-                    if(GPUs[GPUID][2] == "")
+                    string name = "(" + GPUID.ToString() + ") " + e.report.GPUs[GPUID][1];
+                    Series gpu = chaHash.Series.FindByName(name);
+                    if (gpu == null)
                     {
-                        Series newgpu = new Series("(" +GPUID.ToString() + ") " + GPUs[GPUID][1]);
-                        newgpu.BorderWidth = 3;
-                        newgpu.ChartType = SeriesChartType.Spline;
-                        GPUs[GPUID][2] = chaHash.Series.Count.ToString();
-                        chaHash.Series.Add(newgpu);
+                        gpu = new Series(name);
+                        gpu.BorderWidth = 3;
+                        gpu.ChartType = SeriesChartType.Spline;
+                        gpu.XValueType = ChartValueType.Time;
+                        chaHash.Series.Add(gpu);
                     }
-                    int gpuchart = Convert.ToInt32(GPUs[GPUID][2]);
-                    chaHash.Series[gpuchart].Points.Add(new DataPoint(tme.ToOADate(), GPUs[GPUID][0]));
+                    gpu.Points.Add(new DataPoint(tme.ToOADate(), e.report.GPUs[GPUID][0]));
 
                 }
 
-                chaHash.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
-                acc5m.Add(mhits);
-                while(acc5m.Count >= 6)
+                if (e.report.mshare > 0)
                 {
-                    acc5m.RemoveAt(0);
+                    chaStat.Series[0].Points.Add(new DataPoint(tme.ToOADate(), e.report.mshare));
                 }
-                double avg = 0;
-                for(int i =0; i< acc5m.Count;i++)
+                if (e.report.merror > 0)
                 {
-                    avg += acc5m[i];
+                    chaStat.Series[2].Points.Add(new DataPoint(tme.ToOADate(), e.report.merror));
                 }
-                avg = avg / acc5m.Count;
-                chaStat.Series[3].Points.Add(new DataPoint(tme.ToOADate(), avg));
-
-                if (mhits > 0)
+                if (e.report.mstale > 0)
                 {
-                    chaStat.Series[0].Points.Add(new DataPoint(tme.ToOADate(), mhits));
-                    mhits = 0;
-                }
-                if (merror > 0)
-                {
-                    chaStat.Series[2].Points.Add(new DataPoint(tme.ToOADate(), merror));
-                    merror = 0;
-                }
-                if (mstall > 0)
-                {
-                    chaStat.Series[1].Points.Add(new DataPoint(tme.ToOADate(), mstall));
-                    mstall = 0;
+                    chaStat.Series[1].Points.Add(new DataPoint(tme.ToOADate(), e.report.mstale));
                 }
 
-                hashtime = tme;
-                try
+                if (chaHash.Series[0].Points.Count > 60)
                 {
-                    poolAPI.DownloadStringAsync(APIAdress);
-
+                    chaHash.Series[0].Points.RemoveAt(0);
                 }
-                catch { }
-
-                DateTime max = tme.AddMinutes(1);
-                chaStat.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
-                chaStat.ChartAreas[0].AxisX.Maximum = max.ToOADate();
-                minute = tme.Minute;
-            }
-
-            if (chaHash.Series[0].Points.Count > 60)
-            {
-                chaHash.Series[0].Points.RemoveAt(0);
-            }
-            if (chaStat.Series[0].Points.Count > 60)
-            {
-                chaStat.Series[0].Points.RemoveAt(0);
-            }
-            if (chaStat.Series[1].Points.Count > 60)
-            {
-                chaStat.Series[1].Points.RemoveAt(0);
-            }
-            if (chaStat.Series[2].Points.Count > 60)
-            {
-                chaStat.Series[2].Points.RemoveAt(0);
-            }
+                if (chaStat.Series[0].Points.Count > 60)
+                {
+                    chaStat.Series[0].Points.RemoveAt(0);
+                }
+                if (chaStat.Series[1].Points.Count > 60)
+                {
+                    chaStat.Series[1].Points.RemoveAt(0);
+                }
+                if (chaStat.Series[2].Points.Count > 60)
+                {
+                    chaStat.Series[2].Points.RemoveAt(0);
+                }
+            }));
         }
 
-        int APIError = 0;
-
-        private void _API_coinotronCall(object sender, DownloadStringCompletedEventArgs e)
+        private void Mn_OnMinerEvent(object sender, minerEventArgs e)
         {
-
-            if (APIError < 5)
+            Invoke(new Action(() =>
             {
-                try
-                {
-                    string JSon = e.Result;
-                    if (JSon.ToLower().Contains(_conf_coinotronWRK.ToLower()))
-                    {
-                        JSon = JSon.Replace("\"", "");
-                        JSon = JSon.Substring(JSon.ToLower().IndexOf(_conf_coinotronWRK.ToLower()));
-                        JSon = JSon.Remove(JSon.IndexOf("}"));
-                        string[] parts = JSon.Split(',');
-                        string hashrate = "";
-                        foreach (string part in parts)
-                        {
-                            if (part.Contains("hash"))
-                            {
-                                hashrate = part.Split(':')[1];
-                            }
-                        }
-
-                        if (hashrate != "")
-                        {
-                            lblNHash.Text = "N. Hashrate:" + hashrate;
-                            chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), hashrate));
-                        }
-                        APIError = 0;
-                    }
-                    else
-                    {
-                        APIError++;
-                    }
-                }
-                catch
-                {
-                    APIError++;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Coinotron API Request failed! Please check your configuration." + Environment.NewLine + "If the error stays please report to the Developer.");
-            }
+                lstLog.Items.Add(e.Line);
+                lstLog.SelectedIndex = lstLog.Items.Count - 1;
+            }));
         }
-
-        private void _API_p2poolCall(object sender, DownloadStringCompletedEventArgs e)
-        {
-            if (APIError < 5)
-            {
-                try
-                {
-                    string JSon = e.Result;
-                    if (JSon.ToLower().Contains(_conf_coinotronWRK.ToLower()))
-                    {
-                        JSon = JSon.Replace("\"", "");
-                        if (JSon.IndexOf(_conf_walletFTC) > 0)
-                        {
-                            JSon = JSon.Substring(JSon.IndexOf("miner_hash_rates"));
-                            JSon = JSon.Remove(JSon.IndexOf("}"));
-                            JSon = JSon.Substring(JSon.IndexOf("{"));
-                            string[] parts = JSon.Split(',');
-                            string hashrate = "";
-                            foreach (string part in parts)
-                            {
-                                if (part.Contains(_conf_walletFTC))
-                                {
-                                    hashrate = part.Split(':')[1];
-                                }
-                            }
-                            if (hashrate != "")
-                            {
-                                double rate = Convert.ToDouble(hashrate.Replace('.', ','));
-                                rate = rate / 1000;
-                                lblNHash.Text = "N. Hashrate:" + rate.ToString("N2");
-                                chaHash.Series[0].Points.Add(new DataPoint(hashtime.ToOADate(), rate));
-                            }
-                        }
-                        APIError = 0;
-                    }
-                    else
-                    {
-                        APIError++;
-                    }
-                }
-                catch
-                {
-                    APIError++;
-                }
-            }
-            else
-            {
-                MessageBox.Show("P2Pool API Request failed! Please check your configuration." + Environment.NewLine + "If the error stays please report to the Developer.");
-            }
-        }
-
+        
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
             {
-                ccminer.Kill();
+                Stop();
             }
             catch
             { }
@@ -547,34 +170,40 @@ namespace ccmierGUI
 
         private void tmrFeatherStat_Tick(object sender, EventArgs e)
         {
-            try
+            if(_conf_walletFTC != "")
             {
-                DateTime tme = DateTime.Now;
-                tme = tme.AddSeconds(tme.Second * -1);
-                DateTime scroll = tme.AddDays(-1);
-
-                WebClient clnt = new WebClient();
-                string worth = clnt.DownloadString("http://api.feathercoin.com/?output=" + _conf_currency + "&amount=1&json=0");
-                string amount = clnt.DownloadString("http://api.feathercoin.com/?output=balance&address=" + _conf_walletFTC + "&json=0");
-                double value = Convert.ToDouble(worth.Replace('.',','));
-
-                lblBalance.Text = "Balance:" + amount;
-                lblWorth.Text = "FTC -> " + _conf_currency.ToUpper() + ":" + worth;
-                lblValue.Text = "Value:" + (Convert.ToDouble(amount.Replace('.', ',')) * Convert.ToDouble(worth.Replace('.', ','))).ToString();
-
-                if(value > 0)
+                try
                 {
-                    chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), value));
-                }
+                    DateTime tme = DateTime.Now;
+                    tme = tme.AddSeconds(tme.Second * -1);
+                    DateTime scroll = tme.AddDays(-1);
 
-                chaFTC.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
+                    WebClient clnt = new WebClient();
+                    string worth = clnt.DownloadString("http://api.feathercoin.com/?output=" + _conf_currency + "&amount=1&json=0");
+                    string amount = clnt.DownloadString("http://api.feathercoin.com/?output=balance&address=" + _conf_walletFTC + "&json=0");
+                    double value = Convert.ToDouble(worth.Replace('.',','));
 
-                if (chaFTC.Series[0].Points.Count > 8640)
-                {
-                    chaFTC.Series[0].Points.RemoveAt(0);
+                    lblBalance.Text = "Balance:" + amount;
+                    lblWorth.Text = "FTC -> " + _conf_currency.ToUpper() + ":" + worth;
+                    lblValue.Text = "Value:" + (Convert.ToDouble(amount.Replace('.', ',')) * Convert.ToDouble(worth.Replace('.', ','))).ToString();
+
+                    if(value > 0)
+                    {
+                        chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), value));
+                    }
+
+                    chaFTC.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
+                    chaFTC.ChartAreas[0].AxisX.Maximum = DateTime.Now.ToOADate();
+
+                    //chaFTC.Series[0].Points.Max<double>();
+
+                    if (chaFTC.Series[0].Points.Count > 8640)
+                    {
+                        chaFTC.Series[0].Points.RemoveAt(0);
+                    }
                 }
+                catch { }
             }
-            catch { }
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -585,69 +214,44 @@ namespace ccmierGUI
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frmSettings settings = new frmSettings();
-            if(settings.ShowDialog() == DialogResult.OK)
+            frmSettings frsettings = new frmSettings();
+            frsettings.CMiners = CMiners.ToArray();
+            if(frsettings.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    if (!ccminer.HasExited)
-                    {
-                        running = false;
-                        btnStart.Text = "Start";
-                        ccminer.OutputDataReceived -= Ccminer_OutputDataReceived;
-                        ccminer.ErrorDataReceived -= Ccminer_ErrorDataReceived;
-                        ccminer.CancelErrorRead();
-                        ccminer.CancelOutputRead();
-                        ccminer.Kill();
-                    }
+                    Stop();
                 }
                 catch { }
 
-                string[] config = ConfigurationManager.AppSettings.AllKeys;
+                var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                var settings = configFile.AppSettings.Settings;
 
-                foreach (string key in config)
-                {
-                    switch (key)
-                    {
-                        case "CoinotronAPI":
-                            _conf_coinotronAPI = ConfigurationManager.AppSettings.GetValues(key)[0];
-                            break;
-                        case "CoinotronWorker":
-                            _conf_coinotronWRK = ConfigurationManager.AppSettings.GetValues(key)[0];
-                            break;
-                        case "Currency":
-                            _conf_currency = ConfigurationManager.AppSettings.GetValues(key)[0];
-                            break;
-                        case "FeathercoinWalletAddress":
-                            _conf_walletFTC = ConfigurationManager.AppSettings.GetValues(key)[0];
-                            break;
-                        case "ccminerArgs":
-                            txtCMD.Text = ConfigurationManager.AppSettings.GetValues(key)[0];
-                            break;
-                        case "p2poolAddress":
-                            _conf_p2pool = ConfigurationManager.AppSettings.GetValues(key)[0];
-                            break;
-                    }
-                }
+                _conf_walletFTC = settings["FeathercoinWalletAddress"].Value;
+                _conf_currency = settings["Currency"].Value;
+            }
+        }
 
-                bool haspool = false;
-                if (_conf_coinotronAPI != "" && _conf_coinotronWRK != "")
-                {
-                    haspool = true;
-                    poolAPI.DownloadStringCompleted += _API_coinotronCall;
-                    APIAdress = new Uri("https://www.coinotron.com/app?action=api&api_key=" + _conf_coinotronAPI);
-                }
-                else if (_conf_p2pool != "" && _conf_walletFTC != "")
-                {
-                    haspool = true;
-                    poolAPI.DownloadStringCompleted += _API_p2poolCall;
-                    APIAdress = new Uri(_conf_p2pool + "/local_stats");
-                }
+        private void Pool_OnPoolEvent(object sender, poolEventArgs e)
+        {
+            lblNHash.Text = "N.Hashrate:" + e.value;
+            chaHash.Series[0].Points.Add(new DataPoint(e.time, e.value));
+            if (chaHash.Series[0].Points.Count > 60)
+            {
+                chaHash.Series[0].Points.RemoveAt(0);
+            }
+        }
 
-                if (!haspool)
-                {
-                    //chaHash.Series.RemoveAt(1);
-                }
+        private void tmrInitialise_Tick(object sender, EventArgs e)
+        {
+            if(time>0)
+            {
+                time--;
+                lblInitialise.Text = time.ToString();
+            }
+            else
+            {
+                tmrInitialise.Enabled = false;
             }
         }
     }
