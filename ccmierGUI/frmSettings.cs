@@ -64,7 +64,7 @@ namespace ccmierGUI
             {
                 radP2Pool.Checked = true;
                 txtAddress.Text = settings["FeathercoinWalletAddress"].Value;
-                txtUW.Text = settings["Worker"].Value;
+                txtUW.Text = settings["PoolAddress"].Value;
             }
         }
 

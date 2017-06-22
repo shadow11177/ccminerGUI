@@ -146,6 +146,15 @@ namespace ccmierGUI
                 {
                     chaStat.Series[2].Points.RemoveAt(0);
                 }
+
+                DateTime scroll = tme.AddHours(-1);
+                chaStat.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
+                chaStat.ChartAreas[0].AxisX.Maximum = DateTime.Now.AddMinutes(1).ToOADate();
+
+
+                chaHash.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
+                chaHash.ChartAreas[0].AxisX.Maximum = DateTime.Now.AddMinutes(1).ToOADate();
+
             }));
         }
 
@@ -193,7 +202,16 @@ namespace ccmierGUI
                     }
 
                     chaFTC.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
-                    chaFTC.ChartAreas[0].AxisX.Maximum = DateTime.Now.ToOADate();
+                    chaFTC.ChartAreas[0].AxisX.Maximum = DateTime.Now.AddMinutes(1).ToOADate();
+
+                    DataPoint dpmin = chaFTC.Series[0].Points.FindMinByValue("Y1");
+                    DataPoint dpmax = chaFTC.Series[0].Points.FindMaxByValue("Y1");
+
+                    int min = (int)(dpmin.YValues[0] * 100) -1;
+                    int max = (int)(dpmax.YValues[0] * 100) +1;
+
+                    chaFTC.ChartAreas[0].AxisY.Minimum = (double)min / 100;
+                    chaFTC.ChartAreas[0].AxisY.Maximum = (double)max / 100;
 
                     //chaFTC.Series[0].Points.Max<double>();
 
