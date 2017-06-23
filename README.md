@@ -30,7 +30,7 @@ Required:<br />
   .net Framework 4.5.2
   </li>
 <li>
-  ccminer
+  ccminer or nsgminer or bfgminer (or anny other miner with the rpc api of bfgminer)
   </li>
 </ul>
   
@@ -46,12 +46,3 @@ Optional:<br />
   or p2pool
   </li>
 </ul>
-
-Config File (ccminerGUI.exe.config)
-
-    <add key="ccminerArgs" value="-a neoscrypt -i 15 -o stratum+tcp://coinotron.com:3337 -u user.worker -p pass"/>
-    <add key="CoinotronAPI" value="Put your API Key here or leave blanc for ignore" />
-    <add key="CoinotronWorker" value="the Worker to observe leave blanc for ignore" />
-    <add key="Currency" value="eur" />
-    <add key="FeathercoinWalletAddress" value="if you want to display it leave blanc for ignore" />
-    <add key="p2poolAddress" value="your p2pool address like http://poolip:port" />
