@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
-using System.Collections.Specialized;
 using System.Windows.Forms.DataVisualization.Charting;
-using System.Net.Sockets;
-using System.Threading;
 
 namespace ccmierGUI
 {
@@ -25,12 +15,11 @@ namespace ccmierGUI
         }
 
         pool pool;
+        miner mn;
         string _conf_walletFTC = "";
         string _conf_currency = "";
         int time = 60;
-        miner mn;
-
-        List<string> CMiners = new List<string>();
+        List<string> CMiners = new List<string>(); //For the List in the config window
 
         private void frmMain_Load(object sender, EventArgs e)
         {
@@ -38,12 +27,14 @@ namespace ccmierGUI
             CMiners.Add("NSGMiner");
             CMiners.Add("BFGMiner");
 
+            //Load necessarry config parameters
             var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             var settings = configFile.AppSettings.Settings;
 
             _conf_walletFTC = settings["FeathercoinWalletAddress"].Value;
             _conf_currency = settings["Currency"].Value;
 
+            //for initialising the chart (otherwise strange artifacts show up)
             chaStat.Series[0].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[1].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[2].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
@@ -91,6 +82,7 @@ namespace ccmierGUI
         {
             Invoke(new Action(() =>
             {
+                //Fill the Labels
                 lblInitialise.Visible = false;
                 lblAccepted.Text = "Accepted: " + e.report.allshare.ToString();
                 lblBHash.Text = "B. Hashrate: " + e.report.allhash.ToString();
@@ -100,6 +92,7 @@ namespace ccmierGUI
                 lblStale.Text = "Stale: " + e.report.allstale.ToString();
                 lblCMD.Text = e.report.cmd;
 
+                //GPU Chart
                 DateTime tme = DateTime.Now;
                 foreach (int GPUID in e.report.GPUs.Keys)
                 {
@@ -117,6 +110,7 @@ namespace ccmierGUI
 
                 }
 
+                //Share Cahrt
                 if (e.report.mshare > 0)
                 {
                     chaStat.Series[0].Points.Add(new DataPoint(tme.ToOADate(), e.report.mshare));
@@ -129,28 +123,30 @@ namespace ccmierGUI
                 {
                     chaStat.Series[1].Points.Add(new DataPoint(tme.ToOADate(), e.report.mstale));
                 }
+                //5 min Average
+                int count = chaStat.Series[0].Points.Count;
+                int start = chaStat.Series[0].Points.Count - 5;
+                start = start < 0 ? 0 : start;
+                double avg = 0;
+                for (int i = start; i < count; i++)
+                {
+                    avg += chaStat.Series[0].Points[i].YValues[0];
+                }
+                avg = avg / (count - start);
+                chaStat.Series[3].Points.Add(new DataPoint(tme.ToOADate(), avg));
 
-                if (chaHash.Series[0].Points.Count > 60)
+                foreach (Series ser in chaHash.Series)
                 {
-                    chaHash.Series[0].Points.RemoveAt(0);
-                }
-                if (chaStat.Series[0].Points.Count > 60)
-                {
-                    chaStat.Series[0].Points.RemoveAt(0);
-                }
-                if (chaStat.Series[1].Points.Count > 60)
-                {
-                    chaStat.Series[1].Points.RemoveAt(0);
-                }
-                if (chaStat.Series[2].Points.Count > 60)
-                {
-                    chaStat.Series[2].Points.RemoveAt(0);
+                    while (ser.Points.Count > 60)
+                    {
+                        ser.Points.RemoveAt(0);
+                    }
                 }
 
+                //Scroll the chart view
                 DateTime scroll = tme.AddHours(-1);
                 chaStat.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
                 chaStat.ChartAreas[0].AxisX.Maximum = DateTime.Now.AddMinutes(1).ToOADate();
-
 
                 chaHash.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
                 chaHash.ChartAreas[0].AxisX.Maximum = DateTime.Now.AddMinutes(1).ToOADate();
@@ -176,9 +172,10 @@ namespace ccmierGUI
             catch
             { }
         }
-
+        
         private void tmrFeatherStat_Tick(object sender, EventArgs e)
         {
+            //getting the current value of the Feathercoin
             if(_conf_walletFTC != "")
             {
                 try
@@ -201,9 +198,11 @@ namespace ccmierGUI
                         chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), value));
                     }
 
+                    //scroll to the last 24 hours
                     chaFTC.ChartAreas[0].AxisX.Minimum = scroll.ToOADate();
                     chaFTC.ChartAreas[0].AxisX.Maximum = DateTime.Now.AddMinutes(1).ToOADate();
 
+                    //scale the value so the chart looks more dramatic :-)
                     DataPoint dpmin = chaFTC.Series[0].Points.FindMinByValue("Y1");
                     DataPoint dpmax = chaFTC.Series[0].Points.FindMaxByValue("Y1");
 
@@ -212,9 +211,8 @@ namespace ccmierGUI
 
                     chaFTC.ChartAreas[0].AxisY.Minimum = (double)min / 100;
                     chaFTC.ChartAreas[0].AxisY.Maximum = (double)max / 100;
-
-                    //chaFTC.Series[0].Points.Max<double>();
-
+                    
+                    //clean up points that arent visible in the chart (older than 24hours)
                     if (chaFTC.Series[0].Points.Count > 8640)
                     {
                         chaFTC.Series[0].Points.RemoveAt(0);
@@ -252,6 +250,7 @@ namespace ccmierGUI
 
         private void Pool_OnPoolEvent(object sender, poolEventArgs e)
         {
+            //Update the hastrate reported by the pool
             lblNHash.Text = "N.Hashrate:" + e.value;
             chaHash.Series[0].Points.Add(new DataPoint(e.time, e.value));
             if (chaHash.Series[0].Points.Count > 60)
