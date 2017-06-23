@@ -21,7 +21,7 @@ namespace ccmierGUI
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process p = new Process();
-            p.StartInfo.FileName = "https://forum.feathercoin.com/topic/8912/new-miner-with-an-idea-or-kinda-project-thing/";
+            p.StartInfo.FileName = "https://forum.feathercoin.com/topic/8965/mining-gui-with-stats-and-autorestart-and-so-on";
             p.Start();
         }
 
