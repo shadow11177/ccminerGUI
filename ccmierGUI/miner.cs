@@ -104,6 +104,8 @@ namespace ccmierGUI
         public int mstale { get; set; } // new stales in the last minute
         public int allstale { get; set; } // all stales ever occured
 
+        public int restarts { get; set; } // all stales ever occured
+
         public string block { get; set; } // the current block
 
         public string cmd { get; set; } // the current block

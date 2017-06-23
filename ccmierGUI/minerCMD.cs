@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,9 +13,10 @@ namespace ccmierGUI
     class minerCMD : miner
     {
         Process miner = new Process();
-        Timer Report = new Timer();
+        System.Windows.Forms.Timer Report = new System.Windows.Forms.Timer();
+        System.Windows.Forms.Timer Watchdog = new System.Windows.Forms.Timer();
         string path = "";
-
+        int hashtick = 0; //Counts the number of watchdog ticks betwen hashrate reports
         minerReport mr = new minerReport();
 
         public minerCMD()
@@ -26,9 +28,30 @@ namespace ccmierGUI
             string PoolAddress = settings["PoolAddress"].Value;
             string worker = settings["Worker"].Value;
             string pass = settings["Pass"].Value;
-
+            
             mr.cmd = "-a neoscrypt -i " + intensity + " -o stratum+tcp://" + PoolAddress + " -u " + worker + " -p " + pass;
 
+            Run();
+        }
+
+        private void Watchdog_Tick(object sender, EventArgs e)
+        {
+            hashtick++;
+        }
+
+        public new void Stop()
+        {
+            try
+            {
+                Report.Stop();
+                Watchdog.Stop();
+                miner.Kill();
+            }
+            catch { }
+        }
+
+        public new void Run()
+        {
             miner = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -49,16 +72,9 @@ namespace ccmierGUI
             Report.Interval = 60000;
             Report.Start();
             Report.Tick += Report_Tick;
-        }
-
-        public new void Stop()
-        {
-            try
-            {
-                Report.Stop();
-                miner.Kill();
-            }
-            catch { }
+            Watchdog.Interval = 5000;
+            Watchdog.Start();
+            Watchdog.Tick += Watchdog_Tick;
         }
 
         private void Report_Tick(object sender, EventArgs e)
@@ -103,13 +119,14 @@ namespace ccmierGUI
                 int start = data.IndexOf(gpuname) + gpuname.Length + 2;
                 string hashrate = data.Substring(start, pos - start);
                 long rate = Convert.ToInt64(hashrate);
-                //lastupdate = DateTime.Now;
-                if (rate <= 50)
+
+                if (rate <= 50) //Must be configurable !!!
                 {
-                    //restart = true;
+                    makeRestart();
                 }
                 else
                 {
+                    hashtick = 0;
                     int numgpu = Convert.ToInt32(num);
                     if (!mr.GPUs.ContainsKey(numgpu))
                     {
@@ -151,6 +168,7 @@ namespace ccmierGUI
             }
             else if (data.Contains("accepted: "))
             {
+                hashtick = 0;
                 int pos = data.LastIndexOf(':');
                 int spos = data.LastIndexOf(')');
                 string rate = data.Substring(pos + 2, spos - (pos + 1));
@@ -170,31 +188,10 @@ namespace ccmierGUI
 
         private void makeRestart()
         {
-            miner.OutputDataReceived -= miner_OutputDataReceived;
-            miner.ErrorDataReceived -= miner_ErrorDataReceived;
-            miner.CancelErrorRead();
-            miner.CancelOutputRead();
-            miner.Kill();
-
-            miner = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = path,
-                    Arguments = mr.cmd,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
-
-            miner.OutputDataReceived += miner_OutputDataReceived;
-            miner.ErrorDataReceived += miner_ErrorDataReceived;
-            miner.Start();
-            miner.BeginOutputReadLine();
-            miner.BeginErrorReadLine();
-            //tmrProbe.Enabled = true;
+            Stop();
+            Thread.Sleep(100);
+            mr.restarts++;
+            Run();
         }
     }
 }

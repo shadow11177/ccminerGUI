@@ -90,6 +90,7 @@ namespace ccmierGUI
                 lblDifficulty.Text = "Difficulty: " + e.report.difficulty;
                 lblError.Text = "Error: " + e.report.allerror.ToString();
                 lblStale.Text = "Stale: " + e.report.allstale.ToString();
+                lblRestart.Text = "Restarts: " + e.report.restarts.ToString();
                 lblCMD.Text = e.report.cmd;
 
                 //GPU Chart
