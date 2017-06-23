@@ -36,6 +36,24 @@ namespace ccmierGUI
 
         private void Watchdog_Tick(object sender, EventArgs e)
         {
+            if(hashtick >= 60)
+            {
+                makeRestart();
+            }
+            else
+            {
+                try
+                {
+                    if (miner.HasExited)
+                    {
+                        makeRestart();
+                    }
+                }
+                catch
+                {
+                    makeRestart();
+                }
+            }
             hashtick++;
         }
 
@@ -43,6 +61,7 @@ namespace ccmierGUI
         {
             try
             {
+                hashtick = 0;
                 Report.Stop();
                 Watchdog.Stop();
                 miner.Kill();
