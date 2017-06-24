@@ -4,6 +4,7 @@ using System.Net;
 using System.Windows.Forms;
 using System.Configuration;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Globalization;
 
 namespace ccmierGUI
 {
@@ -38,6 +39,13 @@ namespace ccmierGUI
             chaStat.Series[0].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[1].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
             chaStat.Series[2].Points.Add(new DataPoint(DateTime.Now.ToOADate(), 0));
+
+            if(settings["Path"].Value == "")
+            {
+                MessageBox.Show("This seems to be the first Start." + Environment.NewLine + "You need to put in your settings before we can Start!");
+                frmSettings st = new frmSettings();
+                st.Show();
+            }
         }
 
 
@@ -49,8 +57,34 @@ namespace ccmierGUI
             }
             else
             {
-                Start();
+                if(checkSettings())
+                {
+                    Start();
+                }
+                else
+                {
+                    MessageBox.Show("Please check your settings. There sesms to be missing something!");
+                    frmSettings st = new frmSettings();
+                    st.Show();
+                }
             }
+        }
+
+        private bool checkSettings()
+        {
+            string[] neededValues = { "Path", "Intensity", "Worker", "Pass", "PoolAddress" };
+            bool check = true;
+            var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var settings = configFile.AppSettings.Settings;
+
+            foreach(string needed in neededValues)
+            {
+                if (settings[needed].Value == "")
+                {
+                    check = false;
+                }
+            }
+            return check;
         }
 
         private void Start()
@@ -185,18 +219,21 @@ namespace ccmierGUI
                     tme = tme.AddSeconds(tme.Second * -1);
                     DateTime scroll = tme.AddDays(-1);
 
+                    //could be done Async
                     WebClient clnt = new WebClient();
                     string worth = clnt.DownloadString("http://api.feathercoin.com/?output=" + _conf_currency + "&amount=1&json=0");
                     string amount = clnt.DownloadString("http://api.feathercoin.com/?output=balance&address=" + _conf_walletFTC + "&json=0");
-                    double value = Convert.ToDouble(worth.Replace('.',','));
-
-                    lblBalance.Text = "Balance:" + amount;
-                    lblWorth.Text = "FTC -> " + _conf_currency.ToUpper() + ":" + worth;
-                    lblValue.Text = "Value:" + (Convert.ToDouble(amount.Replace('.', ',')) * Convert.ToDouble(worth.Replace('.', ','))).ToString();
-
-                    if(value > 0)
+                    
+                    double dworth = Convert.ToDouble(worth, CultureInfo.InvariantCulture); //They come with a decimal point 
+                    double damount = Convert.ToDouble(amount, CultureInfo.InvariantCulture);
+                    double dvalue = dworth * damount;
+                    
+                    if(dvalue > 0) //Sometimes the API dosnt answer
                     {
-                        chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), value));
+                        lblBalance.Text = "Balance: " + damount.ToString("F"); //who needs more than 2 decimal places? you cant spent .1 cent annyway
+                        lblWorth.Text = "FTC -> " + _conf_currency.ToUpper() + ": " + dworth.ToString("F");
+                        lblValue.Text = "Value: " + dvalue.ToString("F");
+                        chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), dvalue));
                     }
 
                     //scroll to the last 24 hours
@@ -207,6 +244,7 @@ namespace ccmierGUI
                     DataPoint dpmin = chaFTC.Series[0].Points.FindMinByValue("Y1");
                     DataPoint dpmax = chaFTC.Series[0].Points.FindMaxByValue("Y1");
 
+                    //needs review something like just adding 10% would be better!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     int min = (int)(dpmin.YValues[0] * 100) -1;
                     int max = (int)(dpmax.YValues[0] * 100) +1;
 

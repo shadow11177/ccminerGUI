@@ -73,7 +73,7 @@ namespace ccmierGUI
                             }
                             if (hashrate != "")
                             {
-                                string rate = hashrate.Replace('.', ',');
+                                string rate = hashrate.Replace('.', ',');              // Language conversion !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                 rate = (Convert.ToInt32(rate.Split(',')[0]) / 1000).ToString();
                                 PoolEvent(DateTime.Now.ToOADate(), rate);
                             }
