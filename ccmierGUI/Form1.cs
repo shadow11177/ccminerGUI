@@ -44,6 +44,7 @@ namespace ccmierGUI
             {
                 MessageBox.Show("This seems to be the first Start." + Environment.NewLine + "You need to put in your settings before we can Start!");
                 frmSettings st = new frmSettings();
+                st.CMiners = CMiners.ToArray();
                 st.Show();
             }
         }
@@ -65,6 +66,7 @@ namespace ccmierGUI
                 {
                     MessageBox.Show("Please check your settings. There sesms to be missing something!");
                     frmSettings st = new frmSettings();
+                    st.CMiners = CMiners.ToArray();
                     st.Show();
                 }
             }
