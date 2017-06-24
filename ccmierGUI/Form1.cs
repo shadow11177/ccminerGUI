@@ -235,7 +235,7 @@ namespace ccmierGUI
                         lblBalance.Text = "Balance: " + damount.ToString("F"); //who needs more than 2 decimal places? you cant spent .1 cent annyway
                         lblWorth.Text = "FTC -> " + _conf_currency.ToUpper() + ": " + dworth.ToString("F");
                         lblValue.Text = "Value: " + dvalue.ToString("F");
-                        chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), dvalue));
+                        chaFTC.Series[0].Points.Add(new DataPoint(tme.ToOADate(), dworth));
                     }
 
                     //scroll to the last 24 hours
