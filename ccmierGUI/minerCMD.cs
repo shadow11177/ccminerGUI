@@ -31,6 +31,9 @@ namespace ccmierGUI
             string pass = settings["Pass"].Value;
             Threshold = Convert.ToInt32(settings["Threshold"].Value);
 
+            Watchdog.Tick += Watchdog_Tick;
+            Report.Tick += Report_Tick;
+
             mr.cmd = "-a neoscrypt -i " + intensity + " -o stratum+tcp://" + PoolAddress + " -u " + worker + " -p " + pass;
 
             Run();
@@ -92,10 +95,8 @@ namespace ccmierGUI
             miner.BeginErrorReadLine();
             Report.Interval = 60000;
             Report.Start();
-            Report.Tick += Report_Tick;
             Watchdog.Interval = 5000;
             Watchdog.Start();
-            Watchdog.Tick += Watchdog_Tick;
         }
 
         private void Report_Tick(object sender, EventArgs e)

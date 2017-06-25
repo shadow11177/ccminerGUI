@@ -165,11 +165,16 @@ namespace ccmierGUI
                 int start = chaStat.Series[0].Points.Count - 5;
                 start = start < 0 ? 0 : start;
                 double avg = 0;
+                int found = 5;
+                DateTime avgstart = tme.AddMinutes(-5);
                 for (int i = start; i < count; i++)
                 {
-                    avg += chaStat.Series[0].Points[i].YValues[0];
+                    if(chaStat.Series[0].Points[i].XValue >= avgstart.ToOADate())
+                    {
+                        avg += chaStat.Series[0].Points[i].YValues[0];
+                    }
                 }
-                avg = avg / (count - start);
+                avg = avg / found;
                 chaStat.Series[3].Points.Add(new DataPoint(tme.ToOADate(), avg));
 
                 foreach (Series ser in chaHash.Series)
