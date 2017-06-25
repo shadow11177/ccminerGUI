@@ -17,6 +17,7 @@ namespace ccmierGUI
         System.Windows.Forms.Timer Initialise = new System.Windows.Forms.Timer(); //for getting the GPUS
         System.Windows.Forms.Timer Watchdog = new System.Windows.Forms.Timer();
         string path = "";
+        int Threshold = 0;
 
         minerReport mr = new minerReport();
 
@@ -29,6 +30,7 @@ namespace ccmierGUI
             string PoolAddress = settings["PoolAddress"].Value;
             string worker = settings["Worker"].Value;
             string pass = settings["Pass"].Value;
+            Threshold = Convert.ToInt32(settings["Threshold"].Value);
 
             mr.block = "NA";
 
@@ -71,7 +73,7 @@ namespace ccmierGUI
             Report.Interval = 60000;
             Report.Start();
             Report.Tick += Report_Tick;
-            Initialise.Interval = 10000;
+            Initialise.Interval = 40000;
             Initialise.Start();
             Initialise.Tick += getGPUS;
             Watchdog.Interval = 5000;
@@ -244,6 +246,11 @@ namespace ccmierGUI
             else
             {
                 makeRestart(); //assume he is dead
+            }
+
+            if (mr.allhash <= Threshold) //Must be configurable !!!
+            {
+                makeRestart();
             }
         }
 

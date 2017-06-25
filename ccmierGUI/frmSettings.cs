@@ -51,6 +51,7 @@ namespace ccmierGUI
             _conf_pool = Convert.ToInt32(settings["Pool"].Value);
             txtIntensity.Text = settings["Intensity"].Value;
             cboCurr.SelectedIndex = currencies.IndexOf(settings["Currency"].Value);
+            numThreshhold.Value = Convert.ToInt32(settings["Threshold"].Value);
 
             if (_conf_pool == 0)
             {
@@ -123,6 +124,7 @@ namespace ccmierGUI
             settings["FeathercoinWalletAddress"].Value = txtAddress.Text;
             settings["PoolAddress"].Value = pooladress;
             settings["Pass"].Value = pass;
+            settings["Threshold"].Value = numThreshhold.Value.ToString();
 
 
             configFile.Save(ConfigurationSaveMode.Minimal,true);

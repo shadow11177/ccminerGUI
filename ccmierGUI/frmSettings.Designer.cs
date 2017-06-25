@@ -51,16 +51,19 @@
             this.ofdMiner = new System.Windows.Forms.OpenFileDialog();
             this.label5 = new System.Windows.Forms.Label();
             this.txtIntensity = new System.Windows.Forms.TextBox();
+            this.numThreshhold = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numThreshhold)).BeginInit();
             this.SuspendLayout();
             // 
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Location = new System.Drawing.Point(271, 282);
+            this.btnSave.Location = new System.Drawing.Point(271, 303);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 0;
+            this.btnSave.TabIndex = 40;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -129,24 +132,24 @@
             // 
             // txtUW
             // 
-            this.txtUW.Location = new System.Drawing.Point(109, 93);
+            this.txtUW.Location = new System.Drawing.Point(116, 93);
             this.txtUW.Name = "txtUW";
-            this.txtUW.Size = new System.Drawing.Size(318, 20);
+            this.txtUW.Size = new System.Drawing.Size(311, 20);
             this.txtUW.TabIndex = 7;
             this.txtUW.Leave += new System.EventHandler(this.txtUW_Leave);
             // 
             // txtWP
             // 
-            this.txtWP.Location = new System.Drawing.Point(109, 115);
+            this.txtWP.Location = new System.Drawing.Point(116, 115);
             this.txtWP.Name = "txtWP";
-            this.txtWP.Size = new System.Drawing.Size(318, 20);
+            this.txtWP.Size = new System.Drawing.Size(311, 20);
             this.txtWP.TabIndex = 8;
             // 
             // txtAPI
             // 
-            this.txtAPI.Location = new System.Drawing.Point(109, 137);
+            this.txtAPI.Location = new System.Drawing.Point(116, 137);
             this.txtAPI.Name = "txtAPI";
-            this.txtAPI.Size = new System.Drawing.Size(318, 20);
+            this.txtAPI.Size = new System.Drawing.Size(311, 20);
             this.txtAPI.TabIndex = 9;
             // 
             // cboCurr
@@ -160,9 +163,9 @@
             "New Zeland Dollar",
             "US Dollar",
             "Bitcoin"});
-            this.cboCurr.Location = new System.Drawing.Point(109, 159);
+            this.cboCurr.Location = new System.Drawing.Point(116, 159);
             this.cboCurr.Name = "cboCurr";
-            this.cboCurr.Size = new System.Drawing.Size(318, 21);
+            this.cboCurr.Size = new System.Drawing.Size(311, 21);
             this.cboCurr.TabIndex = 10;
             // 
             // label1
@@ -176,9 +179,9 @@
             // 
             // txtAddress
             // 
-            this.txtAddress.Location = new System.Drawing.Point(109, 182);
+            this.txtAddress.Location = new System.Drawing.Point(116, 182);
             this.txtAddress.Name = "txtAddress";
-            this.txtAddress.Size = new System.Drawing.Size(318, 20);
+            this.txtAddress.Size = new System.Drawing.Size(311, 20);
             this.txtAddress.TabIndex = 12;
             // 
             // lblAddress
@@ -193,10 +196,10 @@
             // btnAbort
             // 
             this.btnAbort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAbort.Location = new System.Drawing.Point(352, 282);
+            this.btnAbort.Location = new System.Drawing.Point(352, 303);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(75, 23);
-            this.btnAbort.TabIndex = 14;
+            this.btnAbort.TabIndex = 41;
             this.btnAbort.Text = "Abort";
             this.btnAbort.UseVisualStyleBackColor = true;
             this.btnAbort.Click += new System.EventHandler(this.btnAbort_Click);
@@ -214,9 +217,9 @@
             // 
             this.cboMiner.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMiner.FormattingEnabled = true;
-            this.cboMiner.Location = new System.Drawing.Point(109, 205);
+            this.cboMiner.Location = new System.Drawing.Point(116, 205);
             this.cboMiner.Name = "cboMiner";
-            this.cboMiner.Size = new System.Drawing.Size(318, 21);
+            this.cboMiner.Size = new System.Drawing.Size(311, 21);
             this.cboMiner.TabIndex = 15;
             // 
             // label4
@@ -230,9 +233,9 @@
             // 
             // txtPath
             // 
-            this.txtPath.Location = new System.Drawing.Point(109, 230);
+            this.txtPath.Location = new System.Drawing.Point(116, 230);
             this.txtPath.Name = "txtPath";
-            this.txtPath.Size = new System.Drawing.Size(238, 20);
+            this.txtPath.Size = new System.Drawing.Size(231, 20);
             this.txtPath.TabIndex = 17;
             // 
             // btnSearch
@@ -240,7 +243,7 @@
             this.btnSearch.Location = new System.Drawing.Point(353, 228);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(75, 23);
-            this.btnSearch.TabIndex = 19;
+            this.btnSearch.TabIndex = 18;
             this.btnSearch.Text = "Search...";
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
@@ -261,16 +264,44 @@
             // 
             // txtIntensity
             // 
-            this.txtIntensity.Location = new System.Drawing.Point(109, 254);
+            this.txtIntensity.Location = new System.Drawing.Point(116, 254);
             this.txtIntensity.Name = "txtIntensity";
-            this.txtIntensity.Size = new System.Drawing.Size(318, 20);
+            this.txtIntensity.Size = new System.Drawing.Size(311, 20);
             this.txtIntensity.TabIndex = 20;
+            // 
+            // numThreshhold
+            // 
+            this.numThreshhold.Location = new System.Drawing.Point(116, 277);
+            this.numThreshhold.Maximum = new decimal(new int[] {
+            10000000,
+            0,
+            0,
+            0});
+            this.numThreshhold.Name = "numThreshhold";
+            this.numThreshhold.Size = new System.Drawing.Size(311, 20);
+            this.numThreshhold.TabIndex = 22;
+            this.numThreshhold.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 279);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(95, 13);
+            this.label6.TabIndex = 23;
+            this.label6.Text = "Minimum hashrate:";
             // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(439, 316);
+            this.ClientSize = new System.Drawing.Size(439, 337);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.numThreshhold);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtIntensity);
             this.Controls.Add(this.btnSearch);
@@ -297,6 +328,7 @@
             this.Load += new System.EventHandler(this.frmSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numThreshhold)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -327,5 +359,7 @@
         private System.Windows.Forms.OpenFileDialog ofdMiner;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtIntensity;
+        private System.Windows.Forms.NumericUpDown numThreshhold;
+        private System.Windows.Forms.Label label6;
     }
 }

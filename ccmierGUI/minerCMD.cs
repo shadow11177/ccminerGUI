@@ -18,6 +18,7 @@ namespace ccmierGUI
         string path = "";
         int hashtick = 0; //Counts the number of watchdog ticks betwen hashrate reports
         minerReport mr = new minerReport();
+        int Threshold = 0;
 
         public minerCMD()
         {
@@ -28,7 +29,8 @@ namespace ccmierGUI
             string PoolAddress = settings["PoolAddress"].Value;
             string worker = settings["Worker"].Value;
             string pass = settings["Pass"].Value;
-            
+            Threshold = Convert.ToInt32(settings["Threshold"].Value);
+
             mr.cmd = "-a neoscrypt -i " + intensity + " -o stratum+tcp://" + PoolAddress + " -u " + worker + " -p " + pass;
 
             Run();
@@ -139,7 +141,7 @@ namespace ccmierGUI
                 string hashrate = data.Substring(start, pos - start);
                 long rate = Convert.ToInt64(hashrate);
 
-                if (rate <= 50) //Must be configurable !!!
+                if (rate <= Threshold) //Must be configurable !!!
                 {
                     makeRestart();
                 }
