@@ -13,9 +13,9 @@ namespace ccmierGUI
     class minerRPC : miner
     {
         Process miner = new Process();
-        System.Windows.Forms.Timer Report = new System.Windows.Forms.Timer();
-        System.Windows.Forms.Timer Initialise = new System.Windows.Forms.Timer(); //for getting the GPUS
-        System.Windows.Forms.Timer Watchdog = new System.Windows.Forms.Timer();
+        System.Timers.Timer Report = new System.Timers.Timer();
+        System.Timers.Timer Initialise = new System.Timers.Timer(); //for getting the GPUS
+        System.Timers.Timer Watchdog = new System.Timers.Timer();
         string path = "";
         int Threshold = 0;
 
@@ -31,6 +31,10 @@ namespace ccmierGUI
             string worker = settings["Worker"].Value;
             string pass = settings["Pass"].Value;
             Threshold = Convert.ToInt32(settings["Threshold"].Value);
+
+            Report.Elapsed += Report_Tick;
+            Initialise.Elapsed += getGPUS;
+            Watchdog.Elapsed += Watchdog_Tick;
 
             mr.block = "NA";
 
@@ -72,13 +76,10 @@ namespace ccmierGUI
             miner.BeginErrorReadLine();
             Report.Interval = 60000;
             Report.Start();
-            Report.Tick += Report_Tick;
             Initialise.Interval = 40000;
             Initialise.Start();
-            Initialise.Tick += getGPUS;
             Watchdog.Interval = 5000;
             Watchdog.Start();
-            Watchdog.Tick += Watchdog_Tick;
         }
 
         private void Watchdog_Tick(object sender, EventArgs e)

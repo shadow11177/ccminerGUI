@@ -13,8 +13,8 @@ namespace ccmierGUI
     class minerCMD : miner
     {
         Process miner = new Process();
-        System.Windows.Forms.Timer Report = new System.Windows.Forms.Timer();
-        System.Windows.Forms.Timer Watchdog = new System.Windows.Forms.Timer();
+        System.Timers.Timer Report = new System.Timers.Timer();
+        System.Timers.Timer Watchdog = new System.Timers.Timer();
         string path = "";
         int hashtick = 0; //Counts the number of watchdog ticks betwen hashrate reports
         minerReport mr = new minerReport();
@@ -31,8 +31,8 @@ namespace ccmierGUI
             string pass = settings["Pass"].Value;
             Threshold = Convert.ToInt32(settings["Threshold"].Value);
 
-            Watchdog.Tick += Watchdog_Tick;
-            Report.Tick += Report_Tick;
+            Watchdog.Elapsed += Watchdog_Tick;
+            Report.Elapsed += Report_Tick;
 
             mr.cmd = "-a neoscrypt -i " + intensity + " -o stratum+tcp://" + PoolAddress + " -u " + worker + " -p " + pass;
 
